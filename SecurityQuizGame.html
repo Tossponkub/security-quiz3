@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITM Mahidol Security Quiz Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f1929 0%, #1a2845 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(15, 25, 41, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(212, 175, 55, 0.1);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            padding: 30px;
+            text-align: center;
+            color: #0f1929;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 500px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Chapter Selector Screen */
+        .chapter-selector {
+            text-align: center;
+        }
+
+        .chapter-selector h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #d4af37, #f4d03f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chapter-btn {
+            background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%);
+            border: 2px solid #d4af37;
+            color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+            background: linear-gradient(135deg, #2d5a7b 0%, #3d7aab 100%);
+        }
+
+        .chapter-btn.all {
+            grid-column: span 1;
+        }
+
+        /* Quiz Screen */
+        .quiz-screen {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .quiz-info {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #d4af37;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 1.1em;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid #d4af37;
+        }
+
+        .timer.warning {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f4d03f);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #d4af37;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .question-thai {
+            font-size: 0.95em;
+            color: #b0a080;
+            margin-bottom: 20px;
+            font-style: italic;
+            padding: 12px;
+            background: rgba(212, 175, 55, 0.05);
+            border-left: 3px solid #d4af37;
+            border-radius: 5px;
+        }
+
+        .topic-tag {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 20px;
+            border: 1px solid #d4af37;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: linear-gradient(135deg, rgba(45, 90, 123, 0.3), rgba(61, 122, 171, 0.3));
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #d4af37;
+            background: linear-gradient(135deg, rgba(45, 90, 123, 0.5), rgba(61, 122, 171, 0.5));
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #d4af37;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(244, 208, 63, 0.2));
+        }
+
+        .option.correct {
+            border-color: #2ecc71;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(46, 204, 113, 0.2));
+            color: #2ecc71;
+        }
+
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.3), rgba(231, 76, 60, 0.2));
+            color: #e74c3c;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+        }
+        .option-text {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .option-en {
+            font-size: 1em;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .option-th {
+            font-size: 0.85em;
+            opacity: 0.85;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .option.correct .option-th {
+            color: rgba(46, 204, 113, 0.85);
+        }
+
+        .option.incorrect .option-th {
+            color: rgba(231, 76, 60, 0.85);
+        }
+
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border-left: 4px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .feedback.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 3px solid #d4af37;
+            border-radius: 5px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .explanation-thai {
+            margin-top: 10px;
+            color: #b0a080;
+            font-style: italic;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37, #f4d03f);
+            color: #0f1929;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(212, 175, 55, 0.3);
+        }
+
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: 700;
+            color: #d4af37;
+            margin: 30px 0;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .score-label {
+            font-size: 1.2em;
+            color: #b0a080;
+            margin-bottom: 20px;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .weaknesses {
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .weaknesses h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .weakness-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .weakness-item:last-child {
+            border-bottom: none;
+        }
+
+        .weakness-name {
+            text-align: left;
+        }
+
+        .weakness-score {
+            color: #d4af37;
+            font-weight: 600;
+        }
+
+        .results-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 15px 40px;
+            font-size: 1.1em;
+        }
+
+        /* Share button */
+        .share-section {
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+        }
+
+        .share-btn:hover {
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .share-notification {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(46, 204, 113, 0.2);
+            border-radius: 8px;
+            color: #2ecc71;
+            display: none;
+        }
+
+        .share-notification.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .chapter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .quiz-info {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .results-buttons {
+                flex-direction: column;
+            }
+
+            .final-score {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 ITM Mahidol Security Quiz</h1>
+            <p>Master's Level Security Certification Preparation</p>
+        </header>
+
+        <div class="content">
+            <!-- Chapter Selector Screen -->
+            <div id="chapterScreen" class="screen active chapter-selector">
+                <h2>Select a Chapter</h2>
+                <div class="chapter-grid">
+                    <button class="chapter-btn" onclick="startQuiz(1)">
+                        <div>📚 Chapter 1</div>
+                        <div style="font-size: 0.7em; margin-top: 10px; opacity: 0.9;">Security & Risk Management</div>
+                    </button>
+                    <button class="chapter-btn" onclick="startQuiz(2)">
+                        <div>🔐 Chapter 2</div>
+                        <div style="font-size: 0.7em; margin-top: 10px; opacity: 0.9;">Asset Security</div>
+                    </button>
+                    <button class="chapter-btn" onclick="startQuiz(3)">
+                        <div>🏛️ Chapter 3</div>
+                        <div style="font-size: 0.7em; margin-top: 10px; opacity: 0.9;">Architecture & Engineering</div>
+                    </button>
+                    <button class="chapter-btn all" onclick="startQuiz('all')">
+                        <div>⭐ ALL Chapters</div>
+                        <div style="font-size: 0.7em; margin-top: 10px; opacity: 0.9;">150 Questions (4.5 hours)</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="screen quiz-screen">
+                <div class="quiz-header">
+                    <div class="quiz-info">
+                        <div class="info-item">
+                            <span class="info-label">Chapter:</span>
+                            <span class="info-value" id="currentChapter">1</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Score:</span>
+                            <span class="info-value" id="currentScore">0</span>/<span id="totalQuestions">50</span>
+                        </div>
+                    </div>
+                    <div class="timer" id="timer">90s</div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+
+                <div class="question-container">
+                    <div class="question-number" id="questionNumber">Question 1 of 50</div>
+                    <div class="topic-tag" id="topicTag">Topic</div>
+                    <div class="question-text" id="questionText">Question text here</div>
+                    <div class="question-thai" id="questionThai">Thai translation</div>
+                    <div class="options" id="optionsContainer"></div>
+                    <div class="feedback" id="feedback">
+                        <div id="feedbackText">Feedback</div>
+                        <div class="explanation" id="explanation"></div>
+                        <div class="explanation-thai" id="explanationThai"></div>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>← Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">Next →</button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="screen results-screen">
+                <h2 style="color: #d4af37; margin-bottom: 20px;">🎉 Quiz Complete!</h2>
+                <div class="score-label">Your Score</div>
+                <div class="final-score" id="finalScore">0/50</div>
+                <div class="results-message" id="resultsMessage">Great effort!</div>
+
+                <div class="weaknesses">
+                    <h3>📊 Topic Performance Analysis</h3>
+                    <div id="weaknessesContainer"></div>
+                </div>
+
+                <div class="share-section">
+                    <button class="btn btn-primary btn-large" onclick="shareQuiz()">📤 Share Quiz Results</button>
+                    <div class="share-notification" id="shareNotification">✓ Link copied to clipboard!</div>
+                </div>
+
+                <div class="results-buttons">
+                    <button class="btn btn-primary btn-large" onclick="location.reload()">🔄 Play Again</button>
+                    <button class="btn btn-secondary btn-large" onclick="showChapterScreen()">📚 Choose Chapter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Data
+        const quizData = {
+            1: [
+                { q: "Which of the following best describes the CIA Triad?", th: "ข้อใดอธิบาย CIA Triad ได้ถูกต้องที่สุด?", topic: "CIA Triad", opts: ["Confidentiality, Integrity, Availability", "Confidentiality, Identity, Authentication", "Classification, Identification, Authorization", "Compliance, Infrastructure, Access"], ans: 0, opts_th: ["ความลับ, ความถูกต้อง, ความพร้อมใช้งาน", "ความลับ, ตัวตน, การพิสูจน์ตัวตน", "การจำแนก, การระบุตัวตน, การอนุญาต", "การปฏิบัติตาม, โครงสร้างพื้นฐาน, การเข้าถึง"], exp: "The CIA Triad consists of three core security principles: Confidentiality (keeping data secret), Integrity (ensuring data accuracy), and Availability (ensuring data accessibility).", exp_th: "CIA Triad ประกอบด้วยหลักการรักษาความปลอดภัยสามประการหลัก คือ ความลับ (ทำให้ข้อมูลเป็นความลับ) ความถูกต้อง (การรักษาความแม่นยำของข้อมูล) และความพร้อมใช้งาน (การอำนวยความสะดวกในการเข้าถึงข้อมูล)" },
+                { q: "What does Nonrepudiation ensure?", th: "Nonrepudiation ทำให้มั่นใจในสิ่งใด?", topic: "CIA Triad", opts: ["That systems remain operational", "That a subject cannot deny performing an action", "That data remains encrypted", "That users are authenticated"], ans: 1, opts_th: ["ที่ระบบทำงานต่อเนื่อง", "ที่บุคคลไม่สามารถปฏิเสธการกระทำที่ทำไป", "ที่ข้อมูลยังคงเข้ารหัสอยู่", "ที่ผู้ใช้ได้รับการพิสูจน์ตัวตน"], exp: "Nonrepudiation ensures that a party cannot deny having performed a particular action or transaction, typically through digital signatures or audit logs.", exp_th: "Nonrepudiation ทำให้แน่ใจว่าบุคคลใดไม่สามารถปฏิเสธการดำเนินการหรือธุรกรรมที่ทำมาแล้ว โดยปกติผ่านลายเซ็นดิจิทัลหรือบันทึกการตรวจสอบ" },
+                { q: "Which technology is primarily used to provide Confidentiality?", th: "เทคโนโลยีใดใช้เพื่อรักษาความลับ (Confidentiality) เป็นหลัก?", topic: "CIA Triad", opts: ["Hashing", "Digital Signatures", "Encryption", "Access Control Lists"], ans: 2, opts_th: ["การแฮช", "ลายเซ็นดิจิทัล", "การเข้ารหัส", "รายการควบคุมการเข้าถึง"], exp: "Encryption is the primary technology for maintaining confidentiality by converting plaintext into ciphertext, making it unreadable without the proper decryption key.", exp_th: "การเข้ารหัสเป็นเทคโนโลยีหลักในการรักษาความลับด้วยการแปลงข้อมูลเข้ารหัส (plaintext) เป็นข้อมูลที่เข้ารหัส (ciphertext) ทำให้อ่านไม่ได้โดยไม่มีกุญแจถอดรหัสที่เหมาะสม" },
+                { q: "Which technology is primarily used to verify Integrity?", th: "เทคโนโลยีใดใช้ตรวจสอบความถูกต้อง (Integrity)?", topic: "CIA Triad", opts: ["Encryption", "Hashing", "Tokenization", "Steganography"], ans: 1, opts_th: ["การเข้ารหัส", "การแฮช", "โทเคนไนเซชัน", "ศิลปการซ่อนข้อมูล"], exp: "Hashing is used to verify integrity by creating a fixed-size digital fingerprint of data. Any change to the data produces a different hash value.", exp_th: "การใช้แฮชคือการตรวจสอบความถูกต้องโดยสร้างลายนิ้วมือดิจิทัลของข้อมูล การเปลี่ยนแปลงข้อมูลใด ๆ จะสร้างค่าแฮชที่แตกต่างกัน" },
+                { q: "What ensures Availability in the CIA Triad?", th: "สิ่งใดรับประกัน Availability ใน CIA Triad?", topic: "CIA Triad", opts: ["Encryption protocols", "Redundancy and fault tolerance", "Digital signatures", "Authentication mechanisms"], ans: 1, opts_th: ["การเข้ารหัส โปรโตคอล", "ความซ้ำซ้อนและความอดทนต่อความผิดพลาด", "ลายเซ็นดิจิทัล", "การพิสูจน์ตัวตน กลไก"], exp: "Availability is ensured through redundancy, failover mechanisms, backup systems, and disaster recovery planning to maintain system uptime and data accessibility.", exp_th: "Availability ถูกรับประกันผ่านการสำรองข้อมูล กลไกการสลับไปมา ระบบสำรอง และการวางแผนการกู้คืนหลังวิกฤตเพื่อรักษาเวลาทำงานของระบบและการเข้าถึงข้อมูล" },
+                { q: "According to RFC 1087, which behavior is considered unethical in computing?", th: "ตาม RFC 1087 พฤติกรรมใดถือว่าไม่มีจริยธรรมในด้านการคำนวณ?", topic: "Ethics", opts: ["Using strong encryption", "Reporting security vulnerabilities", "Purposely seeking unauthorized access to Internet resources", "Creating security policies"], ans: 2, opts_th: ["Using strong การเข้ารหัส", "Reporting security ช่องโหว่", "Purposely seeking unauthorized การเข้าถึง to Internet resources", "Creating security policies"], exp: "RFC 1087 describes unethical behavior as deliberately attempting to gain unauthorized access to computer systems, disrupting service, or wasting resources.", exp_th: "RFC 1087 อธิบายพฤติกรรมที่ไม่มีจริยธรรมว่าเป็นการพยายามรับบริหารการเข้าถึงระบบคอมพิวเตอรโดยไม่ได้รับอนุญาต การรบกวนบริการ หรือการสุญเสียทรัพยากร" },
+                { q: "What is the first canon of ISC2 Code of Ethics?", th: "องค์ประกอบแรกของ ISC2 Code of Ethics คืออะไร?", topic: "Ethics", opts: ["Advance and protect the profession", "Comply with laws and regulations", "Protect society, the common good, necessary public trust and confidence, and the infrastructure", "Give due diligence in professional responsibilities"], ans: 2, opts_th: ["Advance and ป้องกัน the profession", "Comply with laws and regulations", "ป้องกัน society, the common good, necessary public trust and confidence, and the โครงสร้างพื้นฐาน", "Give due diligence in professional responsibilities"], exp: "The first canon prioritizes protecting society and public infrastructure above all other obligations in security work.", exp_th: "องค์ประกอบแรกให้ความสำคัญต่อการปกป้องสังคมและโครงสร้างพื้นฐานของสาธารณะมากกว่าข้อผูกพันอื่น ๆ ในงานด้านความปลอดภัย" },
+                { q: "What are the 5 elements of AAA services?", th: "5 องค์ประกอบของ AAA services คืออะไร?", topic: "AAA Services", opts: ["Access, Authorization, Accounting, Auditing, Authentication", "Identification, Authentication, Authorization, Auditing, Accounting", "Authentication, Authorization, Accounting, Assessment, Analysis", "Approval, Authorization, Accounting, Audit, Authentication"], ans: 1, opts_th: ["การเข้าถึง, การอนุญาต, Accounting, Auditing, การพิสูจน์ตัวตน", "การระบุตัวตน, การพิสูจน์ตัวตน, การอนุญาต, Auditing, Accounting", "การพิสูจน์ตัวตน, การอนุญาต, Accounting, Assessment, Analysis", "Approval, การอนุญาต, Accounting, Audit, การพิสูจน์ตัวตน"], exp: "AAA services include: Identification (who you are), Authentication (proving who you are), Authorization (what you can do), Auditing (tracking actions), and Accounting (resource usage).", exp_th: "AAA services รวมถึง การระบุตัวตน (คุณเป็นใคร) การตรวจสอบสิทธิ์ (การพิสูจน์ว่าคุณเป็นใคร) การให้สิทธิ (สิ่งที่คุณทำได้) การตรวจสอบ (การติดตามการดำเนินการ) และการชำระบัญชี (การใช้ทรัพยากร)" },
+                { q: "What is Defense in Depth?", th: "Defense in Depth คืออะไร?", topic: "Defense in Depth", opts: ["Using only the most advanced security tools", "Using multiple layers of security controls", "Encrypting all data at rest and in transit", "Implementing a single, strong firewall"], ans: 1, opts_th: ["Using only the most advanced security tools", "Using multiple layers of security controls", "Encrypting all ข้อมูล at rest and in transit", "Implementing a single, strong ไฟร์วอลล์"], exp: "Defense in Depth is a security strategy using multiple layers of overlapping controls so that if one layer fails, others protect the system.", exp_th: "Defense in Depth เป็นกลยุทธ์ความปลอดภัยโดยใช้หลายชั้นของการควบคุมที่ซ้อนทับกัน เพื่อให้หากชั้นหนึ่งล้มเหลว ชั้นอื่น ๆ จะปกป้องระบบ" },
+                { q: "In the formula Risk = Threat × Vulnerability × ?, what is the missing factor?", th: "ในสูตร Risk = Threat × Vulnerability × ? ปัจจัยที่หายไปคืออะไร?", topic: "Risk Management", opts: ["Probability", "Control", "Asset Value", "Impact"], ans: 2, opts_th: ["Probability", "Control", "สินทรัพย์ Value", "Impact"], exp: "Risk = Threat × Vulnerability × Asset Value. Risk is higher when the asset being threatened is more valuable.", exp_th: "Risk = Threat × Vulnerability × Asset Value ความเสี่ยงจะสูงขึ้นเมื่อทรัพย์สินที่ถูกคุกคาม มีมูลค่าสูงขึ้น" },
+                { q: "What is a Threat in risk management?", th: "ความเสี่ยง (Threat) ในการจัดการความเสี่ยงคืออะไร?", topic: "Risk Management", opts: ["A control measure", "Any weakness in a system", "Any potential danger to an asset", "A security policy"], ans: 2, opts_th: ["A control measure", "Any weakness in a ระบบ", "Any potential danger to an สินทรัพย์", "A นโยบายความปลอดภัย"], exp: "A threat is any potential danger, circumstance, or event that could harm an asset. Examples include hackers, natural disasters, or malware.", exp_th: "ความเสี่ยง (Threat) คือ อันตรายที่อาจเกิดขึ้น สถานการณ์ หรือเหตุการณ์ที่อาจเป็นอันตรายต่อทรัพย์สิน ตัวอย่างเช่น แฮกเกอร์ ภัยพิบัติทางธรรมชาติ หรือมัลแวร์" },
+                { q: "What is a Vulnerability in risk management?", th: "Vulnerability ในการจัดการความเสี่ยงคืออะไร?", topic: "Risk Management", opts: ["A threat actor", "Any weakness in a system", "A security incident", "A control measure"], ans: 1, opts_th: ["A ภัยคุกคาม actor", "Any weakness in a ระบบ", "A security เหตุการณ์", "A control measure"], exp: "A vulnerability is a weakness in a system that could be exploited by a threat. Examples include unpatched software, weak passwords, or misconfigured systems.", exp_th: "Vulnerability คือ จุดอ่อนในระบบที่สามารถถูกใช้ประโยชน์โดยความเสี่ยง ตัวอย่างเช่น ซอฟต์แวร์ที่ยังไม่ได้แก้ไขข้อบกพร่อง รหัสผ่านที่อ่อนแอ หรือระบบที่กำหนดค่าผิด" },
+                { q: "What does Security Governance define?", th: "Security Governance กำหนดสิ่งใด?", topic: "Security Governance", opts: ["Only technical security measures", "The strategic direction and oversight of security across an organization", "Individual security policies", "Only compliance requirements"], ans: 1, opts_th: ["Only technical security measures", "The strategic direction and oversight of security across an organization", "Individual security policies", "Only การปฏิบัติตาม requirements"], exp: "Security Governance is the strategic framework that defines how security decisions are made, who is responsible, and how security aligns with business objectives.", exp_th: "Security Governance เป็นกรอบวาทะที่กำหนดวิธีการตัดสินใจด้านความปลอดภัย ใครรับผิดชอบ และวิธีการจัดตำแหน่งความปลอดภัยให้สอดคล้องกับวัตถุประสงค์ทางธุรกิจ" },
+                { q: "What is the primary purpose of a Security Policy?", th: "วัตถุประสงค์หลักของ Security Policy คืออะไร?", topic: "Security Policy", opts: ["To punish employees", "To define security requirements and guide security activities", "To replace technical controls", "To comply with regulations only"], ans: 1, opts_th: ["To punish employees", "To define security requirements and guide security activities", "To replace technical controls", "To comply with regulations only"], exp: "A security policy establishes the organization's security direction, defines acceptable behaviors, and provides guidance for implementing security controls.", exp_th: "Security Policy กำหนดทิศทางความปลอดภัยขององค์กร กำหนดพฤติกรรมที่ยอมรับได้ และให้แนวทางในการใช้การควบคุมด้านความปลอดภัย" },
+                { q: "What is Personnel Security concerned with?", th: "Personnel Security เกี่ยวข้องกับอะไร?", topic: "Personnel Security", opts: ["Only hiring employees", "Ensuring people are trustworthy and properly trained in security", "Firing underperforming employees", "Only background checks"], ans: 1, opts_th: ["Only hiring employees", "Ensuring people are trustworthy and properly trained in security", "Firing underperforming employees", "Only background checks"], exp: "Personnel Security includes screening, onboarding, training, awareness, and offboarding to ensure people understand their security responsibilities.", exp_th: "Personnel Security รวมถึงการตรวจสอบ การเข้าทำงาน การฝึกอบรม การสร้างความตระหนัก และการออกจากงาน เพื่อให้มั่นใจว่าบุคคลเข้าใจความรับผิดชอบด้านความปลอดภัย" },
+                { q: "What is Threat Modeling?", th: "Threat Modeling คืออะไร?", topic: "Threat Modeling", opts: ["Creating a model of threat actors", "Systematically identifying and analyzing potential threats to a system", "Building threats into software", "Predicting future attacks"], ans: 1, opts_th: ["Creating a model of ภัยคุกคาม actors", "Systematically identifying and analyzing potential ภัยคุกคาม to a ระบบ", "Building ภัยคุกคาม into software", "Predicting future attacks"], exp: "Threat modeling is a structured process to identify, enumerate, and prioritize potential threats and vulnerabilities in a system design.", exp_th: "Threat Modeling เป็นกระบวนการที่มีโครงสร้างในการระบุ นับรวม และจัดลำดับความสำคัญของความเสี่ยงและจุดอ่อนที่อาจเกิดขึ้นในการออกแบบระบบ" },
+                { q: "What does SCRM stand for in security?", th: "SCRM ในด้านความปลอดภัยย่อมาจากอะไร?", topic: "SCRM", opts: ["Supply Chain Risk Management", "Security Compliance and Risk Management", "System Compliance and Recovery Model", "Secure Cryptographic Risk Management"], ans: 0, opts_th: ["การจัดการความเสี่ยงของห่วงโซ่อุปทาน", "Security การปฏิบัติตาม and การจัดการความเสี่ยง", "ระบบ การปฏิบัติตาม and การกู้คืน Model", "Secure Cryptographic การจัดการความเสี่ยง"], exp: "SCRM (Supply Chain Risk Management) focuses on identifying and mitigating risks throughout the entire supply chain of vendors and partners.", exp_th: "SCRM (Supply Chain Risk Management) มุ่งเน้นไปที่การระบุและบรรเทาความเสี่ยงทั่วทั้งห่วงโซ่จัดหาสินค้าของผู้ขาย และพันธมิตร" },
+                { q: "What is BCP in security context?", th: "BCP ในบริบทความปลอดภัยคืออะไร?", topic: "BCP/DRP", opts: ["Business Continuity Plan", "Backup and Cryptography Protocol", "Basic Control Policy", "Boundary Compliance Procedure"], ans: 0, opts_th: ["Business Continuity Plan", "Backup and Cryptography โปรโตคอล", "Basic Control Policy", "Boundary การปฏิบัติตาม Procedure"], exp: "BCP (Business Continuity Plan) ensures business operations continue during and after a disaster or disruption.", exp_th: "BCP (Business Continuity Plan) ทำให้แน่ใจว่าการดำเนินงานของธุรกิจจะดำเนินต่อไประหว่างและหลังจากภัยพิบัติหรือการหยุดชะงัก" },
+                { q: "What is DRP and how does it relate to BCP?", th: "DRP คืออะไร และมันเกี่ยวข้องกับ BCP อย่างไร?", topic: "BCP/DRP", opts: ["DRP is the same as BCP", "DRP (Disaster Recovery Plan) is a component of BCP focused on recovering IT systems after a disaster", "DRP prevents disasters from happening", "DRP is only for large organizations"], ans: 1, opts_th: ["DRP is the same as วางแผนความต่อเนื่องของธุรกิจ", "DRP (การกู้คืนจากความเสียหาย Plan) is a component of วางแผนความต่อเนื่องของธุรกิจ focused on recovering IT ระบบ after a disaster", "DRP prevents disasters from happening", "DRP is only for large organizations"], exp: "DRP (Disaster Recovery Plan) is a subset of BCP that specifically focuses on restoring IT infrastructure and systems after a disaster.", exp_th: "DRP (Disaster Recovery Plan) เป็นส่วนหนึ่งของ BCP ที่มุ่งเน้นโดยเฉพาะไปที่การคืนค่าโครงสร้างพื้นฐาน IT และระบบหลังจากภัยพิบัติ" },
+                { q: "Which is NOT a core principle of security?", th: "อะไรไม่ใช่หลักการหลักของความปลอดภัย?", topic: "CIA Triad", opts: ["Confidentiality", "Integrity", "Availability", "Transparency"], ans: 3, opts_th: ["ความลับ", "ความถูกต้อง", "ความพร้อมใช้งาน", "Transparency"], exp: "The core CIA Triad principles are Confidentiality, Integrity, and Availability. Transparency is not a core principle but relates to governance.", exp_th: "หลักการหลัก CIA Triad คือ ความลับ ความถูกต้อง และความพร้อมใช้งาน ความโปร่งใสไม่ใช่หลักการหลัก แต่เกี่ยวข้องกับการปกครอง" },
+                { q: "What is the Computer Ethics Institute's primary guideline?", th: "หลักเกณฑ์หลักของสถาบันจริยธรรมคอมพิวเตอร์คืออะไร?", topic: "Ethics", opts: ["Using computers only for profit", "Using information resources responsibly and ethically", "Avoiding all computer use", "Always breaking security for access"], ans: 1, opts_th: ["Using computers only for profit", "Using ข้อมูล resources responsibly and ethically", "Avoiding all computer use", "Always breaking security for การเข้าถึง"], exp: "The Computer Ethics Institute promotes 10 principles emphasizing responsible and ethical use of information resources and respecting others' rights.", exp_th: "สถาบันจริยธรรมคอมพิวเตอร์ส่งเสริมหลักการ 10 ประการที่เน้นการใช้ทรัพยากรข้อมูลอย่างมีความรับผิดชอบและจริยธรรมและให้ความเคารพสิทธิของผู้อื่น" },
+                { q: "What is the primary goal of confidentiality controls?", th: "วัตถุประสงค์หลักของการควบคุมความลับคืออะไร?", topic: "CIA Triad", opts: ["Ensure data is accessible", "Ensure data is accurate", "Prevent unauthorized disclosure of information", "Prevent data modification"], ans: 2, opts_th: ["รับประกัน ข้อมูล is accessible", "รับประกัน ข้อมูล is accurate", "Prevent unauthorized disclosure of ข้อมูล", "Prevent ข้อมูล modification"], exp: "Confidentiality controls aim to prevent unauthorized disclosure by restricting access to sensitive information through encryption, access controls, and classification.", exp_th: "การควบคุมความลับมีวัตถุประสงค์เพื่อป้องกันการเปิดเผยโดยไม่ได้รับอนุญาตโดยจำกัดการเข้าถึงข้อมูลที่ไวต่อการเปลี่ยนแปลงผ่านการเข้ารหัส การควบคุมการเข้าถึง และการจำแนกประเภท" },
+                { q: "Which access control model is most restrictive?", th: "โมเดลควบคุมการเข้าถึงใดที่มีข้อจำกัดมากที่สุด?", topic: "AAA Services", opts: ["Role-Based Access Control", "Discretionary Access Control", "Mandatory Access Control", "Attribute-Based Access Control"], ans: 2, opts_th: ["Role-Based การควบคุมการเข้าถึง", "Discretionary การควบคุมการเข้าถึง", "Mandatory การควบคุมการเข้าถึง", "Attribute-Based การควบคุมการเข้าถึง"], exp: "Mandatory Access Control (MAC) is the most restrictive, where the system (not the user) determines who can access what based on predefined security policies.", exp_th: "Mandatory Access Control (MAC) มีข้อจำกัดมากที่สุด โดยระบบ (ไม่ใช่ผู้ใช้) กำหนดว่าใครสามารถเข้าถึงสิ่งใดตามนโยบายความปลอดภัยที่กำหนดไว้ล่วงหน้า" },
+                { q: "What is the main difference between authentication and authorization?", th: "ความแตกต่างหลักระหว่าง authentication และ authorization คืออะไร?", topic: "AAA Services", opts: ["Authentication is harder than authorization", "Authentication verifies who you are; authorization determines what you can do", "They are the same thing", "Authorization happens before authentication"], ans: 1, opts_th: ["การพิสูจน์ตัวตน is harder than การอนุญาต", "การพิสูจน์ตัวตน verifies who you are; การอนุญาต determines what you can do", "They are the same thing", "การอนุญาต happens before การพิสูจน์ตัวตน"], exp: "Authentication is the process of verifying a user's identity (who you are). Authorization is the process of determining what access rights an authenticated user has (what you can do).", exp_th: "Authentication คือกระบวนการตรวจสอบความเป็นตัวตนของผู้ใช้ (คุณเป็นใคร) Authorization คือกระบวนการกำหนดสิทธิ์การเข้าถึงของผู้ใช้ที่ผ่านการตรวจสอบสิทธิ์ (สิ่งที่คุณทำได้)" },
+                { q: "What should a strong password policy include?", th: "นโยบายรหัสผ่านที่แข็งแกร่งควรรวมถึงอะไร?", topic: "Personnel Security", opts: ["Only length requirements", "Minimum length, complexity, expiration, history, and lockout policies", "Only changing passwords yearly", "Requiring the same password for all systems"], ans: 1, opts_th: ["Only length requirements", "Minimum length, complexity, expiration, history, and lockout policies", "Only changing passwords yearly", "Requiring the same password for all ระบบ"], exp: "A comprehensive password policy includes minimum length (12+ chars), complexity requirements, regular expiration, history to prevent reuse, and account lockout after failed attempts.", exp_th: "นโยบายรหัสผ่านที่ครอบคลุมรวมถึงความยาวขั้นต่ำ (12+ ตัวอักษร) ข้อกำหนดความซับซ้อน การหมดอายุตามระยะเวลา ประวัติการป้องกันการนำกลับมาใช้ใหม่ และการล็อคบัญชีหลังจากความพยายามล้มเหลว" },
+                { q: "What is a security baseline?", th: "Security baseline คืออะไร?", topic: "Security Policy", opts: ["The minimum security requirements for a system", "The maximum security possible", "A security incident", "A type of firewall"], ans: 0, opts_th: ["The minimum security requirements for a ระบบ", "The maximum security possible", "A security เหตุการณ์", "A type of ไฟร์วอลล์"], exp: "A security baseline is the minimum acceptable security standard that all systems must meet. It provides a consistent foundation for security across an organization.", exp_th: "Security baseline คือมาตรฐานความปลอดภัยขั้นต่ำที่ยอมรับได้ซึ่งระบบทั้งหมดต้องปฏิบัติ โดยมันให้ความเป็นมูลฐานที่สอดคล้องกันสำหรับความปลอดภัยในทั้งองค์กร" },
+                { q: "What is the purpose of a security audit?", th: "วัตถุประสงค์ของการตรวจสอบความปลอดภัยคืออะไร?", topic: "Security Governance", opts: ["To punish non-compliance", "To identify and evaluate the effectiveness of security controls and policies", "To stop all security breaches", "To replace security policies"], ans: 1, opts_th: ["To punish non-การปฏิบัติตาม", "To identify and evaluate the effectiveness of security controls and policies", "To stop all security breaches", "To replace security policies"], exp: "A security audit systematically evaluates whether security controls are in place, effective, and compliant with policies and regulations.", exp_th: "การตรวจสอบความปลอดภัยประเมินอย่างเป็นระบบว่าการควบคุมด้านความปลอดภัยมีอยู่ มีประสิทธิผล และปฏิบัติตามนโยบายและกฎระเบียบ" },
+                { q: "What is identification in the AAA model?", th: "การระบุตัวตน (Identification) ในโมเดล AAA คืออะไร?", topic: "AAA Services", opts: ["Proving who you are", "Determining access rights", "Claiming to be someone", "Recording activities"], ans: 2, opts_th: ["Proving who you are", "Determining การเข้าถึง rights", "Claiming to be someone", "Recording activities"], exp: "Identification is the act of claiming an identity (providing a username), while authentication is the process of proving that identity is real.", exp_th: "Identification คือการอ้างตัวตน (การให้ชื่อผู้ใช้) ในขณะที่ Authentication คือกระบวนการพิสูจน์ว่าตัวตนนั้นเป็นจริง" },
+                { q: "What does the concept of 'least privilege' mean in security?", th: "แนวคิด 'least privilege' ในความปลอดภัยหมายความว่าอะไร?", topic: "Defense in Depth", opts: ["Give everyone maximum access", "Users should have minimum access needed for their job", "Only administrators have privileges", "All privileges are equal"], ans: 1, opts_th: ["Give everyone maximum การเข้าถึง", "Users should have minimum การเข้าถึง needed for their job", "Only administrators have privileges", "All privileges are equal"], exp: "The Principle of Least Privilege states that users and systems should be granted only the minimum access and permissions necessary to perform their functions.", exp_th: "หลักการ Least Privilege ระบุว่าผู้ใช้และระบบควรได้รับการให้สิทธิ์เพียงปริมาณขั้นต่ำที่จำเป็นในการปฏิบัติหน้าที่ของพวกเขา" },
+                { q: "What is the difference between a threat and a vulnerability?", th: "ความแตกต่างระหว่าง threat และ vulnerability คืออะไร?", topic: "Risk Management", opts: ["They are the same", "A threat is a weakness; a vulnerability is a danger", "A threat is a danger; a vulnerability is a weakness", "Threats are external; vulnerabilities are only internal"], ans: 2, opts_th: ["They are the same", "A ภัยคุกคาม is a weakness; a ช่องโหว่ is a danger", "A ภัยคุกคาม is a danger; a ช่องโหว่ is a weakness", "ภัยคุกคาม are external; ช่องโหว่ are only internal"], exp: "A threat is an external danger or threat actor that could cause harm. A vulnerability is an internal weakness that could be exploited by that threat.", exp_th: "Threat คืออันตรายภายนอกหรือผู้ที่อาจเป็นอันตรายที่อาจทำให้เกิดอันตราย Vulnerability คือจุดอ่อนภายในที่อาจถูกใช้ประโยชน์โดยอันตรายนั้น" },
+                { q: "What should be included in a security incident response plan?", th: "สิ่งที่ควรรวมอยู่ในแผนการตอบสนองต่อเหตุการณ์ความปลอดภัยคืออะไร?", topic: "Security Governance", opts: ["Only technical procedures", "Detection, containment, eradication, recovery, and lessons learned phases", "Only preventive measures", "Only investigation procedures"], ans: 1, opts_th: ["Only technical procedures", "Detection, containment, eradication, การกู้คืน, and lessons learned phases", "Only preventive measures", "Only investigation procedures"], exp: "An incident response plan includes preparation, detection, containment, eradication, recovery, and post-incident activities to effectively manage security incidents.", exp_th: "แผนการตอบสนองต่อเหตุการณ์ประกอบด้วยการเตรียมความพร้อม การตรวจจับ การกักกัน การกำจัด การกู้คืน และกิจกรรมหลังเหตุการณ์เพื่อจัดการเหตุการณ์ความปลอดภัยอย่างมีประสิทธิผล" },
+                { q: "What is a security awareness training program?", th: "โปรแกรมการฝึกอบรมความตระหนักด้านความปลอดภัยคืออะไร?", topic: "Personnel Security", opts: ["Only for IT staff", "A program to educate employees about security risks and best practices", "Only compliance training", "Only technical training"], ans: 1, opts_th: ["Only for IT staff", "A program to educate employees about security risks and best practices", "Only การปฏิบัติตาม training", "Only technical training"], exp: "Security awareness training educates all employees about security threats, policies, and best practices to reduce human-related security risks.", exp_th: "การฝึกอบรมความตระหนักด้านความปลอดภัยให้ความรู้แก่พนักงานทั้งหมดเกี่ยวกับความเสี่ยงด้านความปลอดภัย นโยบาย และแนวทางปฏิบัติที่ดีที่สุดเพื่อลดความเสี่ยงด้านความปลอดภัยที่เกี่ยวข้องกับมนุษย์" },
+                { q: "What is the primary function of a Security Operations Center (SOC)?", th: "หน้าที่หลักของ Security Operations Center (SOC) คืออะไร?", topic: "Security Governance", opts: ["Only for large enterprises", "Monitor, detect, and respond to security incidents 24/7", "Only for network security", "Only for compliance"], ans: 1, opts_th: ["Only for large enterprises", "Monitor, detect, and respond to security incidents 24/7", "Only for network security", "Only for การปฏิบัติตาม"], exp: "A SOC continuously monitors systems and networks, detects security incidents in real-time, and coordinates incident response activities.", exp_th: "SOC ติดตามระบบและเครือข่าย ตรวจจับเหตุการณ์ความปลอดภัยแบบเรียลไทม์ และประสานงานการตอบสนองต่อเหตุการณ์" },
+                { q: "Which control type is implemented AFTER an incident occurs?", th: "ประเภทการควบคุมใดที่ใช้งาน AFTER เหตุการณ์เกิดขึ้น?", topic: "Defense in Depth", opts: ["Preventive control", "Detective control", "Corrective control", "Compensating control"], ans: 2, opts_th: ["Preventive control", "Detective control", "Corrective control", "Compensating control"], exp: "Corrective controls are implemented after an incident to remedy the situation and prevent recurrence. Detective controls identify incidents that have already occurred.", exp_th: "Corrective controls ถูกใช้งานหลังจากเหตุการณ์เพื่อแก้ไขสถานการณ์และป้องกันการเกิดขึ้นซ้ำ Detective controls ระบุเหตุการณ์ที่เกิดขึ้นแล้ว" }
+            ,
+                { q: "What is the PRIMARY goal of information security governance?", th: "เป้าหมายหลักของ Information Security Governance คืออะไร?", topic: "Governance", opts: ["To install firewalls", "To align security with business objectives", "To train all employees", "To conduct penetration testing"], ans: 1, opts_th: ["To install firewalls", "To align security with business objectives", "To train all employees", "To conduct การทดสอบการเจาะระบบ"], exp: "Information security governance ensures that security activities are aligned with and support business objectives, providing direction and oversight.", exp_th: "การกำกับดูแลความปลอดภัยสารสนเทศทำให้กิจกรรมด้านความปลอดภัยสอดคล้องกับเป้าหมายทางธุรกิจ" },
+                { q: "In risk management, what does 'Risk Appetite' mean?", th: "ในการบริหารความเสี่ยง 'Risk Appetite' หมายความว่าอะไร?", topic: "Risk Management", opts: ["The maximum possible loss", "The level of risk an organization is willing to accept", "The minimum security investment", "The total number of threats identified"], ans: 1, opts_th: ["The maximum possible loss", "The level of ความเสี่ยง an organization is willing to accept", "The minimum security investment", "The total number of ภัยคุกคาม identified"], exp: "Risk Appetite is the amount and type of risk that an organization is willing to accept in pursuit of its objectives.", exp_th: "Risk Appetite คือปริมาณและประเภทของความเสี่ยงที่องค์กรยินดีรับได้เพื่อบรรลุวัตถุประสงค์" },
+                { q: "Which risk response involves transferring risk to a third party?", th: "การตอบสนองความเสี่ยงข้อใดเกี่ยวข้องกับการโอนความเสี่ยงไปยังบุคคลที่สาม?", topic: "Risk Management", opts: ["Risk Avoidance", "Risk Mitigation", "Risk Transfer", "Risk Acceptance"], ans: 2, opts_th: ["ความเสี่ยง Avoidance", "ความเสี่ยง Mitigation", "ความเสี่ยง Transfer", "ความเสี่ยง Acceptance"], exp: "Risk Transfer involves shifting the risk to a third party, typically through insurance or outsourcing.", exp_th: "Risk Transfer คือการโอนความเสี่ยงไปยังบุคคลที่สาม โดยปกติผ่านการประกันภัยหรือการจ้างงานภายนอก" },
+                { q: "What is a vulnerability in the context of risk?", th: "ช่องโหว่ (Vulnerability) ในบริบทของความเสี่ยงคืออะไร?", topic: "Risk Management", opts: ["A potential attacker", "A weakness that can be exploited", "An intentional attack", "A security control"], ans: 1, opts_th: ["A potential attacker", "A weakness that can be exploited", "An intentional attack", "A security control"], exp: "A vulnerability is a weakness or flaw in a system that could be exploited by a threat to cause harm.", exp_th: "ช่องโหว่คือจุดอ่อนหรือข้อบกพร่องในระบบที่อาจถูกใช้ประโยชน์โดยภัยคุกคาม" },
+                { q: "What is the STRIDE threat model primarily used for?", th: "STRIDE threat model ใช้สำหรับอะไรเป็นหลัก?", topic: "Threat Modeling", opts: ["Network traffic analysis", "Categorizing types of threats during threat modeling", "Vulnerability scanning", "Incident response"], ans: 1, opts_th: ["Network traffic analysis", "Categorizing types of ภัยคุกคาม during การสร้างแบบจำลองภัยคุกคาม", "ช่องโหว่ scanning", "การตอบสนองต่อเหตุการณ์"], exp: "STRIDE (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) is a threat modeling framework for categorizing threats.", exp_th: "STRIDE เป็น framework สำหรับจำแนกประเภทภัยคุกคามในการทำ threat modeling" },
+                { q: "What does BCP stand for in security?", th: "BCP ในความปลอดภัยย่อมาจากอะไร?", topic: "BCP/DRP", opts: ["Basic Control Protocol", "Business Continuity Plan", "Backup and Copy Procedure", "Breach Containment Policy"], ans: 1, opts_th: ["Basic Control โปรโตคอล", "Business Continuity Plan", "Backup and Copy Procedure", "Breach Containment Policy"], exp: "BCP (Business Continuity Plan) outlines how an organization will continue operations during and after a disaster or disruption.", exp_th: "BCP (Business Continuity Plan) คือแผนที่ระบุวิธีที่องค์กรจะดำเนินการต่อเนื่องระหว่างและหลังจากเกิดภัยพิบัติ" },
+                { q: "What is RTO in disaster recovery?", th: "RTO ในการกู้คืนระบบหลังภัยพิบัติคืออะไร?", topic: "BCP/DRP", opts: ["Recovery Time Objective - maximum tolerable downtime", "Real-Time Operations", "Remote Terminal Output", "Risk Transfer Option"], ans: 0, opts_th: ["วัตถุประสงค์เวลากู้คืน - maximum tolerable downtime", "Real-Time Operations", "Remote Terminal Output", "ความเสี่ยง Transfer Option"], exp: "RTO (Recovery Time Objective) is the maximum acceptable amount of time to restore a system or function after a disruption.", exp_th: "RTO (Recovery Time Objective) คือระยะเวลาสูงสุดที่ยอมรับได้ในการกู้คืนระบบหลังจากเกิดการหยุดชะงัก" },
+                { q: "Which personnel security control is applied BEFORE hiring an employee?", th: "การควบคุมความปลอดภัยบุคลากรใดถูกนำมาใช้ก่อนการจ้างพนักงาน?", topic: "Personnel Security", opts: ["Security training", "Background check", "Termination interview", "Performance review"], ans: 1, opts_th: ["Security training", "Background check", "Termination interview", "Performance review"], exp: "Background checks are performed before hiring to verify an applicant's history, credentials, and suitability for a position.", exp_th: "การตรวจสอบประวัติดำเนินการก่อนการจ้างงานเพื่อยืนยันประวัติและคุณสมบัติของผู้สมัคร" },
+                { q: "What is Social Engineering in cybersecurity?", th: "Social Engineering ในไซเบอร์ซีเคียวริตี้คืออะไร?", topic: "Threat Modeling", opts: ["Building social media platforms", "Manipulating people to reveal confidential information", "Social media security policy", "Network topology design"], ans: 1, opts_th: ["Building social media platforms", "Manipulating people to reveal confidential ข้อมูล", "Social media นโยบายความปลอดภัย", "Network topology design"], exp: "Social Engineering involves psychologically manipulating people into divulging confidential information or performing actions that compromise security.", exp_th: "Social Engineering คือการหลอกล่อทางจิตวิทยาให้คนเปิดเผยข้อมูลลับหรือดำเนินการที่กระทบต่อความปลอดภัย" },
+                { q: "What is Supply Chain Risk Management (SCRM) concerned with?", th: "Supply Chain Risk Management (SCRM) เกี่ยวข้องกับอะไร?", topic: "SCRM", opts: ["Managing risks from third-party vendors and partners", "Managing internal IT infrastructure", "Conducting security audits", "Training security personnel"], ans: 0, opts_th: ["Managing risks from third-party vendors and partners", "Managing internal IT โครงสร้างพื้นฐาน", "Conducting security audits", "Training security personnel"], exp: "SCRM focuses on identifying, assessing, and mitigating risks that arise from an organization's supply chain, including third-party vendors.", exp_th: "SCRM มุ่งเน้นการระบุ ประเมิน และบรรเทาความเสี่ยงที่เกิดจากห่วงโซ่อุปทานขององค์กร รวมถึง vendors บุคคลที่สาม" },
+                { q: "A security policy is BEST described as:", th: "นโยบายความปลอดภัย (Security Policy) อธิบายได้ดีที่สุดว่า:", topic: "Security Policy", opts: ["A technical configuration document", "A high-level statement of management's security intentions", "A step-by-step technical procedure", "A list of security tools"], ans: 1, opts_th: ["A technical configuration document", "A high-level statement of management's security intentions", "A step-by-step technical procedure", "A list of security tools"], exp: "A security policy is a high-level document that expresses management's intent and commitment to security, defining what is expected.", exp_th: "นโยบายความปลอดภัยคือเอกสารระดับสูงที่แสดงเจตนาและความมุ่งมั่นของฝ่ายบริหารด้านความปลอดภัย" },
+                { q: "What type of investigation uses the lowest burden of proof?", th: "การสอบสวนประเภทใดที่ใช้มาตรฐานการพิสูจน์ต่ำที่สุด?", topic: "Investigation Types", opts: ["Criminal investigation", "Civil investigation", "Administrative investigation", "Military investigation"], ans: 2, opts_th: ["Criminal investigation", "Civil investigation", "Administrative investigation", "Military investigation"], exp: "Administrative investigations have the lowest burden of proof (preponderance of evidence), while criminal investigations require 'beyond reasonable doubt'.", exp_th: "การสอบสวนเชิงบริหารมีมาตรฐานการพิสูจน์ต่ำที่สุด ในขณะที่คดีอาญาต้องการ 'beyond reasonable doubt'" },
+                { q: "The ISC2 Code of Ethics requires members to prioritize in which order?", th: "จรรยาบรรณของ ISC2 กำหนดให้สมาชิกจัดลำดับความสำคัญในลำดับใด?", topic: "Ethics", opts: ["Employer, Society, Principal, Self", "Society, Principal, Employer, Self", "Self, Employer, Principal, Society", "Principal, Society, Employer, Self"], ans: 1, opts_th: ["Employer, Society, Principal, Self", "Society, Principal, Employer, Self", "Self, Employer, Principal, Society", "Principal, Society, Employer, Self"], exp: "ISC2 Code of Ethics prioritizes: (1) Protect society, (2) Act honorably/honestly (principal), (3) Provide diligent service to principals/employers, (4) Advance the profession.", exp_th: "จรรยาบรรณ ISC2 จัดลำดับ: 1) ปกป้องสังคม 2) ปฏิบัติตนด้วยความซื่อสัตย์ 3) ให้บริการแก่นายจ้าง 4) พัฒนาวิชาชีพ" },
+                { q: "What is a Security Standard compared to a Security Policy?", th: "Security Standard แตกต่างจาก Security Policy อย่างไร?", topic: "Security Policy", opts: ["Standards are higher level than policies", "Standards provide specific mandatory requirements supporting the policy", "Standards are optional guidelines", "Standards and policies are the same thing"], ans: 1, opts_th: ["Standards are higher level than policies", "Standards จัดให้มี specific mandatory requirements supporting the policy", "Standards are optional guidelines", "Standards and policies are the same thing"], exp: "Standards provide specific, mandatory requirements that support and implement the broader security policy.", exp_th: "Standards ให้ข้อกำหนดเฉพาะที่บังคับใช้ซึ่งสนับสนุนและนำนโยบายความปลอดภัยโดยรวมไปปฏิบัติ" },
+                { q: "What is the purpose of a Security Awareness program?", th: "จุดประสงค์ของโปรแกรม Security Awareness คืออะไร?", topic: "Personnel Security", opts: ["To train technical security staff only", "To ensure all employees understand security threats and their responsibilities", "To certify security professionals", "To test network vulnerabilities"], ans: 1, opts_th: ["To train technical security staff only", "To รับประกัน all employees understand security ภัยคุกคาม and their responsibilities", "To certify security professionals", "To test network ช่องโหว่"], exp: "Security Awareness programs ensure that all staff understand security threats, policies, and their individual responsibilities in maintaining security.", exp_th: "โปรแกรม Security Awareness ทำให้พนักงานทุกคนเข้าใจภัยคุกคามด้านความปลอดภัย นโยบาย และความรับผิดชอบของตนเอง" },
+                { q: "Which control type DETECTS security incidents?", th: "การควบคุมประเภทใดที่ตรวจจับเหตุการณ์ด้านความปลอดภัย?", topic: "Risk Management", opts: ["Preventive control", "Detective control", "Corrective control", "Deterrent control"], ans: 1, opts_th: ["Preventive control", "Detective control", "Corrective control", "Deterrent control"], exp: "Detective controls identify and record security incidents after they occur, such as audit logs, IDS, and security cameras.", exp_th: "Detective controls ระบุและบันทึกเหตุการณ์ด้านความปลอดภัยหลังจากเกิดขึ้น เช่น audit logs, IDS และกล้องวงจรปิด" }
+],
+            2: [
+                { q: "What does PII stand for?", th: "PII ย่อมาจากอะไร?", topic: "Data Classification", opts: ["Protected Individual Information", "Personally Identifiable Information", "Private Internet Information", "Proprietary Internal Information"], ans: 1, opts_th: ["Protected Individual ข้อมูล", "Personally Identifiable ข้อมูล", "Private Internet ข้อมูล", "Proprietary Internal ข้อมูล"], exp: "PII (Personally Identifiable Information) is any data that can identify an individual, such as name, SSN, address, email, or phone number.", exp_th: "PII (Personally Identifiable Information) คือข้อมูลใด ๆ ที่สามารถระบุตัวตนของบุคคลได้ เช่น ชื่อ SSN ที่อยู่ อีเมล หรือหมายเลขโทรศัพท์" },
+                { q: "What US law primarily mandates PHI protection?", th: "กฎหมาย US ใดที่กำหนด PHI protection เป็นหลัก?", topic: "Data Classification", opts: ["PCI-DSS", "HIPAA", "SOX", "GDPR"], ans: 1, opts_th: ["PCI-DSS", "HIPAA", "SOX", "GDPR"], exp: "HIPAA (Health Insurance Portability and Accountability Act) is a US law that mandates the protection of PHI (Protected Health Information).", exp_th: "HIPAA (Health Insurance Portability and Accountability Act) เป็นกฎหมาย US ที่กำหนด PHI (Protected Health Information) protection" },
+                { q: "What is PHI?", th: "PHI คืออะไร?", topic: "Data Classification", opts: ["Personal Hardware Information", "Protected Health Information", "Private Hosting Infrastructure", "Public Health Initiative"], ans: 1, opts_th: ["Personal Hardware ข้อมูล", "Protected Health ข้อมูล", "Private Hosting โครงสร้างพื้นฐาน", "Public Health Initiative"], exp: "PHI (Protected Health Information) is health information that can identify an individual, regulated under HIPAA in the healthcare industry.", exp_th: "PHI (Protected Health Information) คือข้อมูลสุขภาพที่สามารถระบุตัวตนของบุคคล ควบคุมภายใต้ HIPAA ในอุตสาหกรรมสุขภาพ" },
+                { q: "What is the highest classification level in government data classification?", th: "ระดับการจำแนกประเภทสูงสุดในการจำแนกข้อมูลรัฐบาลคืออะไร?", topic: "Data Classification", opts: ["Confidential", "Secret", "Top Secret", "Unclassified"], ans: 2, opts_th: ["Confidential", "Secret", "Top Secret", "Unclassified"], exp: "Top Secret is the highest classification level for U.S. government information, requiring the strictest access controls and security measures.", exp_th: "Top Secret เป็นระดับการจำแนกประเภทสูงสุดสำหรับข้อมูลรัฐบาล US ซึ่งต้องการการควบคุมการเข้าถึงและมาตรการความปลอดภัยที่เข้มงวดที่สุด" },
+                { q: "In government classification, what level causes 'serious damage' if disclosed?", th: "ในการจำแนกประเภทของรัฐบาล ระดับใดที่ทำให้เกิด 'ความเสียหายร้ายแรง' หากเปิดเผย?", topic: "Data Classification", opts: ["Confidential", "Secret", "Top Secret", "Unclassified"], ans: 1, opts_th: ["Confidential", "Secret", "Top Secret", "Unclassified"], exp: "Secret classification indicates information that would cause serious damage to national security if disclosed without authorization.", exp_th: "การจำแนกประเภท Secret ระบุข้อมูลที่อาจทำให้เกิดความเสียหายร้ายแรงต่อความปลอดภัยของชาติหากเปิดเผยโดยไม่ได้รับอนุญาต" },
+                { q: "What is the non-government equivalent of 'Unclassified'?", th: "อะไรเท่ากับการจำแนกประเภท 'Unclassified' ของเอกชน?", topic: "Data Classification", opts: ["Confidential", "Internal Only", "Public", "Restricted"], ans: 2, opts_th: ["Confidential", "Internal Only", "Public", "Restricted"], exp: "Public is the non-government equivalent of Unclassified, indicating information that can be openly shared with no restrictions.", exp_th: "Public เป็นส่วนเท่ากับ Unclassified ในเอกชน ซึ่งระบุข้อมูลที่สามารถแบ่งปันกับสาธารณะได้อย่างเปิดเผย" },
+                { q: "What is Proprietary Data?", th: "Proprietary Data คืออะไร?", topic: "Sensitive Data", opts: ["Government classified information", "Data that helps an organization maintain a competitive edge", "Personal customer information", "Public information"], ans: 1, opts_th: ["Government classified ข้อมูล", "ข้อมูล that helps an organization รักษา a competitive edge", "Personal customer ข้อมูล", "Public ข้อมูล"], exp: "Proprietary data is confidential information unique to an organization that provides competitive advantage, such as trade secrets, formulas, or strategies.", exp_th: "Proprietary data คือข้อมูลลับที่เฉพาะตัวขององค์กรที่ให้ความได้เปรียบในการแข่งขัน เช่น ความลับทางการค้า สูตร หรือกลยุทธ์" },
+                { q: "Who is primarily responsible for classifying data?", th: "ใครรับผิดชอบหลักในการจำแนกประเภทข้อมูล?", topic: "Data Classification", opts: ["Data Custodian", "Data User", "Data Owner", "Security Administrator"], ans: 2, opts_th: ["ข้อมูล Custodian", "ข้อมูล User", "ข้อมูล Owner", "Security Administrator"], exp: "The Data Owner, typically a manager or executive, is responsible for determining the classification level and protection requirements for their data.", exp_th: "Data Owner ซึ่งโดยทั่วไปเป็นผู้จัดการหรือผู้บริหาร รับผิดชอบในการกำหนดระดับการจำแนกประเภทและข้อกำหนดการป้องกัน" },
+                { q: "What is the role of a Data Custodian?", th: "บทบาทของ Data Custodian คืออะไร?", topic: "Asset Retention", opts: ["Owns the data and decides classification", "Implements and maintains security controls over data", "Uses data for daily operations", "Reports on data usage"], ans: 1, opts_th: ["Owns the ข้อมูล and decides การจำแนก", "Implements and maintains security controls over ข้อมูล", "Uses ข้อมูล for daily operations", "Reports on ข้อมูล usage"], exp: "A Data Custodian implements and maintains the security controls, backups, and safeguards specified by the Data Owner to protect the data.", exp_th: "Data Custodian ใช้งานและบำรุงรักษาการควบคุมด้านความปลอดภัย การสำรองข้อมูล และการป้องกันที่ระบุโดย Data Owner" },
+                { q: "What does DLP stand for?", th: "DLP ย่อมาจากอะไร?", topic: "DLP", opts: ["Digital Loss Prevention", "Data Loss Prevention", "Distribution Level Protection", "Database Leak Prevention"], ans: 1, opts_th: ["Digital Loss Prevention", "ข้อมูล Loss Prevention", "Distribution Level Protection", "Database Leak Prevention"], exp: "DLP (Data Loss Prevention) is a set of tools and processes that monitor and prevent unauthorized transmission of sensitive data outside the organization.", exp_th: "DLP (Data Loss Prevention) คือชุดของเครื่องมือและกระบวนการที่ติดตามและป้องกันการส่งข้อมูลที่ไวต่อการเปลี่ยนแปลงโดยไม่ได้รับอนุญาตนอกองค์กร" },
+                { q: "What is the Data Lifecycle?", th: "Data Lifecycle คืออะไร?", topic: "Data Lifecycle", opts: ["How long data is stored", "The phases data goes through: creation, use, retention, and destruction", "Only about data deletion", "Only about data creation"], ans: 1, opts_th: ["How long ข้อมูล is stored", "The phases ข้อมูล goes through: creation, use, retention, and destruction", "Only about ข้อมูล deletion", "Only about ข้อมูล creation"], exp: "The Data Lifecycle encompasses all phases: creation (collection), use (processing), retention (storage), and destruction (secure deletion/disposal).", exp_th: "Data Lifecycle ครอบคลุมทั้งหมด: การสร้าง (การรวบรวม) การใช้ (การประมวลผล) การเก็บรักษา (การเก็บข้อมูล) และการทำลาย (การลบ/การจำหน่ายอย่างปลอดภัย)" },
+                { q: "What must happen to data at the end of its lifecycle?", th: "สิ่งใดที่ต้องเกิดขึ้นกับข้อมูลเมื่อสิ้นสุด lifecycle?", topic: "Asset Retention", opts: ["Keep it forever", "Securely destroy or dispose of it according to retention policies", "Archive it indefinitely", "Always make it public"], ans: 1, opts_th: ["Keep it forever", "Securely destroy or dispose of it according to retention policies", "Archive it indefinitely", "Always make it public"], exp: "Data must be securely destroyed (shredded, overwritten, or incinerated) when its retention period expires, per data protection policies and regulations.", exp_th: "ข้อมูลต้องถูกทำลายอย่างปลอดภัย (ตัด เขียนทับ หรือเผา) เมื่อระยะเวลาการเก็บรักษาหมดอายุ ตามนโยบายและกฎระเบียบการป้องกันข้อมูล" },
+                { q: "What is NIST SP 800-122?", th: "NIST SP 800-122 คืออะไร?", topic: "Data Security Controls", opts: ["Guidelines for WiFi security", "Guidelines for PII handling and protection", "Guidelines for firewalls", "Guidelines for encryption"], ans: 1, opts_th: ["Guidelines for WiFi security", "Guidelines for PII handling and protection", "Guidelines for firewalls", "Guidelines for การเข้ารหัส"], exp: "NIST SP 800-122 provides comprehensive guidelines for protecting PII (Personally Identifiable Information) in federal information systems.", exp_th: "NIST SP 800-122 ให้แนวทางที่ครอบคลุมในการป้องกัน PII (Personally Identifiable Information) ในระบบข้อมูลของรัฐบาลกลาง" },
+                { q: "What is the highest classification in non-government data?", th: "ระดับการจำแนกประเภทสูงสุดในข้อมูลของเอกชนคืออะไร?", topic: "Data Classification", opts: ["Public", "Internal Only", "Confidential", "Restricted"], ans: 2, opts_th: ["Public", "Internal Only", "Confidential", "Restricted"], exp: "In non-government classification, Confidential (or Proprietary) typically represents the highest protection level for business-sensitive information.", exp_th: "ในการจำแนกประเภทของเอกชน Confidential (หรือ Proprietary) โดยปกติแทนระดับการป้องกันสูงสุดสำหรับข้อมูลที่ไวต่อธุรกิจ" },
+                { q: "Which regulation primarily affects payment card data security?", th: "กฎระเบียบใดที่ส่งผลกระทบต่อความปลอดภัยของข้อมูลบัตรชำระเงินเป็นหลัก?", topic: "Data Security Controls", opts: ["HIPAA", "SOX", "PCI-DSS", "GDPR"], ans: 2, opts_th: ["HIPAA", "SOX", "PCI-DSS", "GDPR"], exp: "PCI-DSS (Payment Card Industry Data Security Standard) is the standard for protecting payment card data and maintaining secure networks.", exp_th: "PCI-DSS (Payment Card Industry Data Security Standard) เป็นมาตรฐานสำหรับการป้องกันข้อมูลบัตรชำระเงินและการรักษาเครือข่ายที่ปลอดภัย" },
+                { q: "What is data classification based on?", th: "การจำแนกประเภทข้อมูลขึ้นอยู่กับสิ่งใด?", topic: "Data Classification", opts: ["The format of the data", "The sensitivity level and potential impact of disclosure", "Only the storage location", "Only the data owner's preference"], ans: 1, opts_th: ["The format of the ข้อมูล", "The sensitivity level and potential impact of disclosure", "Only the storage location", "Only the ข้อมูล owner's preference"], exp: "Data classification is based on the sensitivity level (how confidential), the potential impact if disclosed, and applicable regulatory requirements.", exp_th: "การจำแนกประเภทข้อมูลขึ้นอยู่กับระดับความไวต่อการเปลี่ยนแปลง (ระดับความลับ) ผลกระทบที่อาจเกิดขึ้นหากเปิดเผย และข้อกำหนดด้านการควบคุมที่ใช้บังคับ" },
+                { q: "What is data scoping in security?", th: "Data scoping ในด้านความปลอดภัยคืออะไร?", topic: "Scoping/Tailoring", opts: ["Deleting unnecessary data", "Defining which systems and data fall under security requirements", "Only counting data size", "Only about data encryption"], ans: 1, opts_th: ["Deleting unnecessary ข้อมูล", "Defining which ระบบ and ข้อมูล fall under security requirements", "Only counting ข้อมูล size", "Only about ข้อมูล การเข้ารหัส"], exp: "Scoping defines the boundaries and identifies which systems, data, and applications are subject to specific security controls and regulations.", exp_th: "Scoping กำหนดขอบเขตและระบุระบบ ข้อมูล และแอปพลิเคชันที่อยู่ภายใต้การควบคุมด้านความปลอดภัยและกฎระเบียบเฉพาะ" },
+                { q: "What is data tailoring in security compliance?", th: "Data tailoring ในความสอดคล้องของความปลอดภัยคืออะไร?", topic: "Scoping/Tailoring", opts: ["Organizing data alphabetically", "Customizing security controls to fit specific organizational needs", "Only about backups", "Only encryption methods"], ans: 1, opts_th: ["Organizing ข้อมูล alphabetically", "Customizing security controls to fit specific organizational needs", "Only about backups", "Only การเข้ารหัส methods"], exp: "Tailoring is the process of customizing and adjusting security controls based on the organization's specific requirements, risk profile, and environment.", exp_th: "Tailoring คือกระบวนการปรับแต่งและปรับการควบคุมด้านความปลอดภัยตามความต้องการเฉพาะขององค์กร โปรไฟล์ความเสี่ยง และสภาพแวดล้อม" },
+                { q: "What is tokenization used for?", th: "Tokenization ใช้สำหรับอะไร?", topic: "Data Security Controls", opts: ["Encrypting all data", "Replacing sensitive data with non-sensitive tokens", "Creating passwords", "Managing access control"], ans: 1, opts_th: ["Encrypting all ข้อมูล", "Replacing sensitive ข้อมูล with non-sensitive tokens", "Creating passwords", "Managing การควบคุมการเข้าถึง"], exp: "Tokenization replaces sensitive data (like credit cards) with randomly generated tokens, reducing the risk of data exposure while maintaining functionality.", exp_th: "Tokenization แทนที่ข้อมูลที่ไวต่อการเปลี่ยนแปลง (เช่น บัตรเครดิต) ด้วย tokens ที่สร้างขึ้นแบบสุ่ม ซึ่งลดความเสี่ยงของการสัตบรรษาทึก" },
+                { q: "What is data masking?", th: "Data masking คืออะไร?", topic: "Data Security Controls", opts: ["Hiding data location", "Replacing sensitive data with obscured versions in non-production environments", "Deleting data", "Compressing data"], ans: 1, opts_th: ["Hiding ข้อมูล location", "Replacing sensitive ข้อมูล with obscured versions in non-production environments", "Deleting ข้อมูล", "Compressing ข้อมูล"], exp: "Data masking obscures sensitive information in test or development environments by replacing it with realistic but fake data, protecting actual PII.", exp_th: "Data masking ทำให้ข้อมูลที่ไวต่อการเปลี่ยนแปลง เลิกใช้งาน ในสภาพแวดล้อมการทดสอบหรือการพัฒนาโดยแทนที่ด้วยข้อมูลปลอมที่สมจริง" },
+                { q: "What is the primary purpose of encryption?", th: "วัตถุประสงค์หลักของการเข้ารหัสคืออะไร?", topic: "Cryptographic controls", opts: ["To compress data", "To protect confidentiality by making data unreadable without a key", "To improve system performance", "To delete data"], ans: 1, opts_th: ["To compress ข้อมูล", "To ป้องกัน ความลับ by making ข้อมูล unreadable without a key", "To improve ระบบ performance", "To delete ข้อมูล"], exp: "Encryption transforms plaintext into ciphertext, making data unreadable without the proper decryption key, thus protecting confidentiality.", exp_th: "การเข้ารหัสแปลงข้อมูลเข้ารหัส (plaintext) เป็นข้อมูลที่เข้ารหัส (ciphertext) ทำให้อ่านไม่ได้โดยไม่มีกุญแจถอดรหัสที่เหมาะสม" },
+                { q: "What are the two main types of encryption?", th: "ประเภทการเข้ารหัสหลักสองประเภทคืออะไร?", topic: "Cryptographic controls", opts: ["Fast and slow", "Symmetric and Asymmetric", "Public and Private", "Hash and Cipher"], ans: 1, opts_th: ["Fast and slow", "สมมาตร and อสมมาตร", "Public and Private", "แฮช and Cipher"], exp: "Symmetric encryption uses one shared key (fast but key exchange is difficult), while Asymmetric uses public/private key pairs (slower but solves key exchange).", exp_th: "Symmetric encryption ใช้กุญแจที่ใช้ร่วมกันหนึ่งตัว (เร็ว แต่การแลกเปลี่ยนกุญแจนั้นยาก) ในขณะที่ Asymmetric ใช้คู่กุญแจสาธารณะ/ส่วนตัว (ช้ากว่า แต่แก้ไขปัญหาการแลกเปลี่ยนกุญแจ)" },
+                { q: "What is a cryptographic hash function used for?", th: "ฟังก์ชันแฮช Cryptographic ใช้สำหรับอะไร?", topic: "Cryptographic controls", opts: ["Encryption", "Verifying data integrity and authentication", "Compressing data", "Creating random numbers"], ans: 1, opts_th: ["การเข้ารหัส", "Verifying ข้อมูล ความถูกต้อง and การพิสูจน์ตัวตน", "Compressing ข้อมูล", "Creating random numbers"], exp: "Hash functions produce a fixed-size output (digest) from any input. Even tiny changes produce different hashes, enabling integrity verification.", exp_th: "ฟังก์ชันแฮชสร้างผลลัพธ์ขนาดคงที่ (digest) จากอินพุตใด ๆ แม้แต่การเปลี่ยนแปลงเล็กน้อยจะสร้างแฮชที่แตกต่างกัน" },
+                { q: "What is a digital signature used for?", th: "ลายเซ็นดิจิทัลใช้สำหรับอะไร?", topic: "Cryptographic controls", opts: ["Encrypting messages", "Providing authentication and nonrepudiation", "Compressing files", "Deleting data"], ans: 1, opts_th: ["Encrypting messages", "Providing การพิสูจน์ตัวตน and ความไม่สามารถปฏิเสธได้", "Compressing files", "Deleting ข้อมูล"], exp: "A digital signature uses asymmetric cryptography to prove the signer's identity and that data hasn't been altered, providing authentication and nonrepudiation.", exp_th: "ลายเซ็นดิจิทัลใช้ cryptography แบบไม่สมมาตรเพื่อพิสูจน์ตัวตนของผู้ลงนามและว่าข้อมูลไม่ได้ถูกเปลี่ยนแปลง" },
+                { q: "What should be included in a data handling procedure?", th: "สิ่งใดที่ควรรวมอยู่ในขั้นตอนการจัดการข้อมูล?", topic: "Data Security Controls", opts: ["Only storage procedures", "Collection, storage, transmission, use, and destruction procedures", "Only transmission methods", "Only access controls"], ans: 1, opts_th: ["Only storage procedures", "Collection, storage, transmission, use, and destruction procedures", "Only transmission methods", "Only การเข้าถึง controls"], exp: "Comprehensive data handling includes secure collection, storage (with encryption), transmission (using secure channels), appropriate use, and secure destruction.", exp_th: "การจัดการข้อมูลที่ครอบคลุมรวมถึงการรวบรวมที่ปลอดภัย การเก็บรักษา (ด้วยการเข้ารหัส) การส่งข้อมูล (โดยใช้ช่องทางที่ปลอดภัย) การใช้ที่เหมาะสม และการทำลายที่ปลอดภัย" },
+                { q: "What is the purpose of a Data Retention Policy?", th: "วัตถุประสงค์ของ Data Retention Policy คืออะไร?", topic: "Asset Retention", opts: ["To keep all data forever", "To define how long data should be kept and when it should be destroyed", "To prevent access to data", "To encrypt all data"], ans: 1, opts_th: ["To keep all ข้อมูล forever", "To define how long ข้อมูล should be kept and when it should be destroyed", "To prevent การเข้าถึง to ข้อมูล", "To เข้ารหัส all ข้อมูล"], exp: "A Data Retention Policy specifies how long different types of data must be kept (compliance, business needs) and requires secure deletion when the period expires.", exp_th: "Data Retention Policy ระบุว่าข้อมูลประเภทต่าง ๆ ต้องเก็บรักษานานเท่าใด (ความสอดคล้อง ความต้องการทางธุรกิจ) และกำหนดให้ลบข้อมูลอย่างปลอดภัยเมื่อหมดเวลา" },
+                { q: "What is data residue?", th: "Data residue คืออะไร?", topic: "Asset Retention", opts: ["Data after compression", "Sensitive data remaining on media after deletion attempts", "Data in backups", "Test data"], ans: 1, opts_th: ["ข้อมูล after compression", "Sensitive ข้อมูล remaining on media after deletion attempts", "ข้อมูล in backups", "Test ข้อมูล"], exp: "Data residue is sensitive information that remains on storage media after supposedly being deleted, recoverable with forensic tools if not properly sanitized.", exp_th: "Data residue คือข้อมูลที่ไวต่อการเปลี่ยนแปลงที่ยังคงอยู่บนสื่อการเก็บรักษาหลังจากการลบ สามารถกู้คืนด้วยเครื่องมือทางศาสตร์ดิจิทัลได้" },
+                { q: "What is the primary difference between GDPR and HIPAA?", th: "ความแตกต่างหลักระหว่าง GDPR และ HIPAA คืออะไร?", topic: "Data Classification", opts: ["GDPR is older than HIPAA", "GDPR applies globally to personal data; HIPAA applies in US to healthcare data", "They are the same regulation", "GDPR only applies to companies"], ans: 1, opts_th: ["GDPR is older than HIPAA", "GDPR applies globally to personal ข้อมูล; HIPAA applies in US to healthcare ข้อมูล", "They are the same regulation", "GDPR only applies to companies"], exp: "GDPR (EU regulation) covers personal data of EU residents globally. HIPAA (US regulation) covers health information in the US healthcare industry.", exp_th: "GDPR (กฎระเบียบ EU) ครอบคลุมข้อมูลส่วนบุคคลของผู้อยู่อาศัย EU ทั่วโลก HIPAA (กฎระเบียบ US) ครอบคลุมข้อมูลสุขภาพในอุตสาหกรรมสุขภาพ US" },
+                { q: "What is a Data Protection Impact Assessment (DPIA)?", th: "Data Protection Impact Assessment (DPIA) คืออะไร?", topic: "Data Security Controls", opts: ["A audit of past incidents", "An assessment of privacy risks when processing personal data", "Only for compliance", "Only encryption review"], ans: 1, opts_th: ["A audit of past incidents", "An assessment of privacy risks when processing personal ข้อมูล", "Only for การปฏิบัติตาม", "Only การเข้ารหัส review"], exp: "A DPIA is a systematic evaluation of privacy risks when processing personal data, identifying risks and proposing mitigation measures.", exp_th: "DPIA เป็นการประเมินความเสี่ยงด้านความเป็นส่วนตัวอย่างเป็นระบบเมื่อประมวลผลข้อมูลส่วนบุคคล ระบุความเสี่ยงและเสนอมาตรการบรรเทา" },
+                { q: "What should be done if a data breach is discovered?", th: "สิ่งใดที่ควรทำหากพบการรั่วไหลของข้อมูล?", topic: "Data Security Controls", opts: ["Ignore it and hope it goes away", "Immediately notify affected individuals, regulators, and legal team", "Only tell management privately", "Only tell IT department"], ans: 1, opts_th: ["Ignore it and hope it goes away", "Immediately notify affected individuals, regulators, and legal team", "Only tell management privately", "Only tell IT department"], exp: "Data breach notification is mandatory: inform affected individuals, regulators (per GDPR/state laws within 30-60 days), and law enforcement as required.", exp_th: "การแจ้งเรื่องการรั่วไหลของข้อมูลถูกบังคับ แจ้งให้ผู้ได้รับผลกระทบทราบ ผู้ควบคุม (ตาม GDPR/กฎหมายของรัฐภายใน 30-60 วัน) และเจ้าหน้าที่บังคับใจ" },
+                { q: "What is the purpose of a Data Use Agreement (DUA)?", th: "วัตถุประสงค์ของ Data Use Agreement (DUA) คืออะไร?", topic: "Data Security Controls", opts: ["To encrypt data", "To establish terms for how third parties can use shared data", "To delete data", "Only for government data"], ans: 1, opts_th: ["To เข้ารหัส ข้อมูล", "To establish terms for how third parties can use shared ข้อมูล", "To delete ข้อมูล", "Only for government ข้อมูล"], exp: "A DUA is a legal contract specifying how a third party can use shared data, including security requirements, restrictions, and liability.", exp_th: "DUA เป็นสัญญาทางกฎหมายที่ระบุวิธีการใช้ข้อมูลที่ใช้ร่วมกันของบุคคลที่สาม รวมถึงข้อกำหนดด้านความปลอดภัย ข้อจำกัด และการรับผิดชอบ" },
+                { q: "What is the principle of data minimization?", th: "หลักการลดการใช้ข้อมูล (Data Minimization) คืออะไร?", topic: "Sensitive Data", opts: ["Delete all data", "Collect only data that is necessary for the specified purpose", "Keep all available data", "Encrypt everything"], ans: 1, opts_th: ["Delete all ข้อมูล", "Collect only ข้อมูล that is necessary for the specified purpose", "Keep all available ข้อมูล", "เข้ารหัส everything"], exp: "Data minimization requires collecting only the minimum data necessary to achieve the stated purpose, reducing exposure and privacy risks.", exp_th: "Data minimization กำหนดให้รวบรวมเฉพาะข้อมูลขั้นต่ำที่จำเป็นในการบรรลุวัตถุประสงค์ที่ระบุ เพื่อลดความเสี่ยงและความเสี่ยงด้านความเป็นส่วนตัว" },
+                { q: "What is a vendor risk assessment?", th: "Vendor risk assessment คืออะไร?", topic: "Data Security Controls", opts: ["Testing vendors' software", "Evaluating third-party vendors' security and compliance practices", "Only pricing review", "Only reputation check"], ans: 1, opts_th: ["Testing vendors' software", "Evaluating third-party vendors' security and การปฏิบัติตาม practices", "Only pricing review", "Only reputation check"], exp: "Vendor risk assessment evaluates third-party security controls, compliance, incident history, and ability to protect organization's data.", exp_th: "Vendor risk assessment ประเมินการควบคุมด้านความปลอดภัยของบุคคลที่สาม ความสอดคล้อง ประวัติเหตุการณ์ และความสามารถในการป้องกันข้อมูลขององค์กร" }
+            ,
+                { q: "Who is primarily responsible for classifying data in an organization?", th: "ใครเป็นผู้รับผิดชอบหลักในการจำแนกประเภทข้อมูลในองค์กร?", topic: "Data Roles", opts: ["Data Custodian", "Data User", "Data Owner", "Data Processor"], ans: 2, opts_th: ["ข้อมูล Custodian", "ข้อมูล User", "ข้อมูล Owner", "ข้อมูล Processor"], exp: "The Data Owner (typically a senior manager) is responsible for classifying data and determining who has access to it.", exp_th: "เจ้าของข้อมูล (Data Owner) มักเป็นผู้จัดการระดับสูงที่รับผิดชอบในการจำแนกข้อมูลและกำหนดว่าใครมีสิทธิ์เข้าถึง" },
+                { q: "What is the role of a Data Custodian?", th: "บทบาทของ Data Custodian คืออะไร?", topic: "Data Roles", opts: ["Classifying data sensitivity levels", "Implementing and maintaining security controls for data", "Defining data access policies", "Auditing data usage"], ans: 1, opts_th: ["Classifying ข้อมูล sensitivity levels", "Implementing and maintaining security controls for ข้อมูล", "Defining ข้อมูล การเข้าถึง policies", "Auditing ข้อมูล usage"], exp: "The Data Custodian is responsible for implementing and maintaining security controls as directed by the data owner, such as backups and access controls.", exp_th: "Data Custodian รับผิดชอบในการดำเนินการและบำรุงรักษาการควบคุมความปลอดภัยตามที่เจ้าของข้อมูลกำหนด" },
+                { q: "What is Data Remanence?", th: "Data Remanence คืออะไร?", topic: "Data Security Controls", opts: ["The process of backing up data", "Residual data remaining on media after deletion", "Data redundancy in RAID systems", "Data classification labels"], ans: 1, opts_th: ["The process of backing up ข้อมูล", "Residual ข้อมูล remaining on media after deletion", "ข้อมูล ความซ้ำซ้อน in RAID ระบบ", "ข้อมูล การจำแนก labels"], exp: "Data Remanence refers to residual data that remains on storage media even after deletion or formatting, posing a security risk.", exp_th: "Data Remanence คือข้อมูลที่เหลือบนสื่อบันทึกข้อมูลแม้หลังจากลบหรือฟอร์แมตแล้ว ซึ่งก่อให้เกิดความเสี่ยงด้านความปลอดภัย" },
+                { q: "Which method BEST ensures complete data destruction on magnetic media?", th: "วิธีใดที่รับรองการทำลายข้อมูลอย่างสมบูรณ์บนสื่อแม่เหล็กได้ดีที่สุด?", topic: "Data Security Controls", opts: ["Standard deletion", "Formatting the drive", "Degaussing", "Overwriting once"], ans: 2, opts_th: ["Standard deletion", "Formatting the drive", "Degaussing", "Overwriting once"], exp: "Degaussing uses a strong magnetic field to destroy all data on magnetic media, making it unrecoverable.", exp_th: "Degaussing ใช้สนามแม่เหล็กที่แรงเพื่อทำลายข้อมูลทั้งหมดบนสื่อแม่เหล็กทำให้ไม่สามารถกู้คืนได้" },
+                { q: "What is the data lifecycle stage where data is no longer needed?", th: "ขั้นตอนวงจรชีวิตข้อมูลใดที่ข้อมูลไม่จำเป็นต้องใช้อีกต่อไป?", topic: "Data Lifecycle", opts: ["Collection", "Processing", "Archival", "Destruction"], ans: 3, opts_th: ["Collection", "Processing", "Archival", "Destruction"], exp: "Destruction is the final stage of the data lifecycle where data is securely destroyed when it is no longer needed or required for retention.", exp_th: "การทำลายเป็นขั้นตอนสุดท้ายของวงจรชีวิตข้อมูล ซึ่งข้อมูลจะถูกทำลายอย่างปลอดภัยเมื่อไม่จำเป็นต้องใช้อีก" },
+                { q: "What is DRM in the context of data security?", th: "DRM ในบริบทของความปลอดภัยข้อมูลคืออะไร?", topic: "Data Security Controls", opts: ["Data Risk Management", "Digital Rights Management", "Data Retention Methodology", "Disaster Recovery Mode"], ans: 1, opts_th: ["ข้อมูล การจัดการความเสี่ยง", "Digital Rights Management", "ข้อมูล Retention Methodology", "การกู้คืนจากความเสียหาย Mode"], exp: "Digital Rights Management (DRM) controls how digital content is used, distributed, and accessed, protecting intellectual property.", exp_th: "Digital Rights Management (DRM) ควบคุมวิธีการใช้ กระจาย และเข้าถึงเนื้อหาดิจิทัล เพื่อปกป้องทรัพย์สินทางปัญญา" },
+                { q: "What does 'Scoping' mean in the context of security controls?", th: "'Scoping' ในบริบทของการควบคุมความปลอดภัยหมายความว่าอะไร?", topic: "Data Security Controls", opts: ["Expanding all security controls", "Selecting only relevant security controls that apply to the system", "Removing all unnecessary data", "Setting system boundaries"], ans: 1, opts_th: ["Expanding all security controls", "Selecting only relevant security controls that apply to the ระบบ", "Removing all unnecessary ข้อมูล", "Setting ระบบ boundaries"], exp: "Scoping involves selecting only those security controls that are applicable and relevant to the specific system or environment.", exp_th: "Scoping คือการเลือกเฉพาะการควบคุมความปลอดภัยที่เกี่ยวข้องและใช้ได้กับระบบหรือสภาพแวดล้อมเฉพาะ" },
+                { q: "What is an Asset in information security?", th: "Asset ในความปลอดภัยสารสนเทศคืออะไร?", topic: "Asset Classification", opts: ["Only physical hardware", "Anything of value to an organization that needs protection", "Only software applications", "Only financial resources"], ans: 1, opts_th: ["Only physical hardware", "Anything of value to an organization that needs protection", "Only software applications", "Only financial resources"], exp: "An asset is anything of value to an organization, including data, hardware, software, people, and facilities that require protection.", exp_th: "Asset คือสิ่งที่มีคุณค่าต่อองค์กร รวมถึงข้อมูล ฮาร์ดแวร์ ซอฟต์แวร์ บุคลากร และสิ่งอำนวยความสะดวกที่ต้องการการปกป้อง" },
+                { q: "What type of data does HIPAA primarily protect?", th: "HIPAA ปกป้องข้อมูลประเภทใดเป็นหลัก?", topic: "Sensitive Data", opts: ["Financial information", "Protected Health Information (PHI)", "Government classified data", "Personally Identifiable Information (PII)"], ans: 1, opts_th: ["Financial ข้อมูล", "Protected Health ข้อมูล (PHI)", "Government classified ข้อมูล", "Personally Identifiable ข้อมูล (PII)"], exp: "HIPAA (Health Insurance Portability and Accountability Act) specifically mandates the protection of Protected Health Information (PHI).", exp_th: "HIPAA กำหนดให้ปกป้องข้อมูลสุขภาพที่ได้รับการคุ้มครอง (PHI) โดยเฉพาะ" },
+                { q: "Which of the following is NOT an example of PII?", th: "ข้อใดต่อไปนี้ไม่ใช่ตัวอย่างของ PII?", topic: "Sensitive Data", opts: ["Social security number", "Biometric records", "Company's annual revenue report", "Date and place of birth"], ans: 2, opts_th: ["Social security number", "Biometric records", "Company's annual revenue report", "Date and place of birth"], exp: "A company's annual revenue report is public financial data, not PII. PII specifically identifies or can be linked to an individual person.", exp_th: "รายงานรายได้ประจำปีของบริษัทเป็นข้อมูลทางการเงินสาธารณะ ไม่ใช่ PII ซึ่งต้องระบุหรือเชื่อมโยงกับบุคคล" },
+                { q: "What is the concept of 'Data Sovereignty'?", th: "แนวคิด 'Data Sovereignty' คืออะไร?", topic: "Data Security Controls", opts: ["Data belongs to whoever creates it", "Data is subject to the laws of the country where it is stored or processed", "Data can be freely transferred across borders", "Data should be stored in multiple locations"], ans: 1, opts_th: ["ข้อมูล belongs to whoever creates it", "ข้อมูล is subject to the laws of the country where it is stored or processed", "ข้อมูล can be freely transferred across borders", "ข้อมูล should be stored in multiple locations"], exp: "Data Sovereignty means that data is subject to the laws and governance structures of the country in which it is located or processed.", exp_th: "Data Sovereignty หมายความว่าข้อมูลอยู่ภายใต้กฎหมายและโครงสร้างการกำกับดูแลของประเทศที่ข้อมูลนั้นตั้งอยู่หรือถูกประมวลผล" },
+                { q: "When should data retention policies be applied?", th: "ควรใช้นโยบายการเก็บรักษาข้อมูลเมื่อใด?", topic: "Asset Retention", opts: ["Only when regulators require it", "Throughout the entire data lifecycle", "Only when data is no longer needed", "Only for classified data"], ans: 1, opts_th: ["Only when regulators require it", "Throughout the entire ข้อมูล lifecycle", "Only when ข้อมูล is no longer needed", "Only for classified ข้อมูล"], exp: "Data retention policies should be applied throughout the entire data lifecycle to ensure data is kept for required periods and properly destroyed when no longer needed.", exp_th: "ควรใช้นโยบายการเก็บรักษาข้อมูลตลอดวงจรชีวิตข้อมูลทั้งหมด" },
+                { q: "What does 'Tailoring' security controls mean?", th: "'Tailoring' การควบคุมความปลอดภัยหมายความว่าอะไร?", topic: "Data Security Controls", opts: ["Purchasing new security tools", "Modifying baseline controls to fit specific organizational needs", "Removing all security controls", "Creating custom encryption algorithms"], ans: 1, opts_th: ["Purchasing new security tools", "Modifying baseline controls to fit specific organizational needs", "Removing all security controls", "Creating custom การเข้ารหัส algorithms"], exp: "Tailoring involves modifying the baseline security controls to better fit the specific needs, environment, and risk profile of an organization.", exp_th: "Tailoring คือการปรับปรุง baseline security controls ให้เหมาะสมกับความต้องการ สภาพแวดล้อม และโปรไฟล์ความเสี่ยงขององค์กร" },
+                { q: "What is the difference between clearing and purging media?", th: "การล้างข้อมูล (Clearing) และการล้างสะอาด (Purging) แตกต่างกันอย่างไร?", topic: "Data Security Controls", opts: ["They are identical processes", "Clearing removes data, purging makes it unrecoverable even with forensic tools", "Purging just deletes files, clearing uses overwriting", "Clearing is for SSDs, purging is for HDDs"], ans: 1, opts_th: ["They are identical processes", "Clearing removes ข้อมูล, purging makes it unrecoverable even with forensic tools", "Purging just deletes files, clearing uses overwriting", "Clearing is for SSDs, purging is for HDDs"], exp: "Clearing removes data from media in a way that may still be recoverable, while purging (or sanitization) makes data unrecoverable even with forensic tools.", exp_th: "Clearing ลบข้อมูลที่อาจยังคืนค่าได้ ในขณะที่ Purging ทำให้ข้อมูลไม่สามารถกู้คืนได้แม้ด้วยเครื่องมือ forensic" },
+                { q: "Which classification level in government causes 'Exceptionally Grave Damage' if disclosed?", th: "ระดับการจำแนกใดของรัฐบาลที่ก่อให้เกิด 'ความเสียหายร้ายแรงอย่างยิ่ง' หากเปิดเผย?", topic: "Data Classification", opts: ["Confidential", "Secret", "Top Secret", "Restricted"], ans: 2, opts_th: ["Confidential", "Secret", "Top Secret", "Restricted"], exp: "Top Secret data, if disclosed, would cause exceptionally grave damage to national security or organizational mission.", exp_th: "ข้อมูล Top Secret หากเปิดเผยจะก่อให้เกิดความเสียหายร้ายแรงอย่างยิ่งต่อความมั่นคงของชาติหรือภารกิจขององค์กร" },
+                { q: "A Data Processor differs from a Data Controller because:", th: "Data Processor แตกต่างจาก Data Controller เพราะ:", topic: "Data Roles", opts: ["Data Processors own the data", "Data Processors process data on behalf of the controller but don't determine purposes", "Data Processors set data classification levels", "Data Processors audit data usage"], ans: 1, opts_th: ["ข้อมูล Processors own the ข้อมูล", "ข้อมูล Processors process ข้อมูล on behalf of the controller but don't กำหนด purposes", "ข้อมูล Processors set ข้อมูล การจำแนก levels", "ข้อมูล Processors audit ข้อมูล usage"], exp: "A Data Processor processes personal data on behalf of the Data Controller but doesn't determine the purposes or means of processing.", exp_th: "Data Processor ประมวลผลข้อมูลส่วนบุคคลในนามของ Data Controller แต่ไม่ได้กำหนดวัตถุประสงค์หรือวิธีการประมวลผล" },
+                { q: "Which NIST publication specifically addresses protecting PII?", th: "สิ่งพิมพ์ NIST ใดที่กล่าวถึงการปกป้อง PII โดยเฉพาะ?", topic: "Sensitive Data", opts: ["NIST SP 800-53", "NIST SP 800-122", "NIST SP 800-207", "NIST SP 800-171"], ans: 1, opts_th: ["NIST SP 800-53", "NIST SP 800-122", "NIST SP 800-207", "NIST SP 800-171"], exp: "NIST SP 800-122 'Guide to Protecting the Confidentiality of Personally Identifiable Information (PII)' provides guidance on PII protection.", exp_th: "NIST SP 800-122 ให้แนวทางในการปกป้องความลับของข้อมูลส่วนบุคคล (PII)" }
+],
+            3: [
+                { q: "What does the Principle of Least Privilege state?", th: "หลักการ Least Privilege ระบุสิ่งใด?", topic: "Secure Design", opts: ["Give everyone administrator access", "Users should have minimum access needed for their job", "Only IT has any access", "More privileges mean more security"], ans: 1, opts_th: ["Give everyone administrator การเข้าถึง", "Users should have minimum การเข้าถึง needed for their job", "Only IT has any การเข้าถึง", "More privileges mean more security"], exp: "Least Privilege limits users to only the access and permissions necessary to perform their role, reducing attack surface and potential damage.", exp_th: "Least Privilege จำกัดผู้ใช้ให้มีเฉพาะการเข้าถึงและการอนุญาตที่จำเป็นในการปฏิบัติบทบาทของตน ลดพื้นผิวการโจมตีและความเสียหายที่อาจเกิดขึ้น" },
+                { q: "What is Fail-Secure (Fail-Closed) behavior?", th: "Fail-Secure (Fail-Closed) behavior คืออะไร?", topic: "Secure Design", opts: ["System fails and everyone gets access", "When a system fails, communication is cut off to maintain security", "System becomes more open when it fails", "System deletes all data"], ans: 1, opts_th: ["ระบบ fails and everyone gets การเข้าถึง", "When a ระบบ fails, communication is cut off to รักษา security", "ระบบ becomes more open when it fails", "ระบบ deletes all ข้อมูล"], exp: "Fail-Secure means when a system fails, it defaults to a secure state (denial of access) rather than granting access in error.", exp_th: "Fail-Secure หมายความว่าเมื่อระบบล้มเหลว มันจะเริ่มต้นสถานะที่ปลอดภัย (การปฏิเสธการเข้าถึง) แทนการให้สิทธิ์การเข้าถึงโดยอาจทำให้เกิดข้อผิดพลาด" },
+                { q: "What is Fail-Soft behavior?", th: "Fail-Soft behavior คืออะไร?", topic: "Secure Design", opts: ["Secure system shutdown", "System continues operating after a component failure with reduced functionality", "Total system shutdown", "Security feature failure"], ans: 1, opts_th: ["Secure ระบบ shutdown", "ระบบ continues operating after a component failure with reduced functionality", "Total ระบบ shutdown", "Security feature failure"], exp: "Fail-soft allows a system to continue operating after a failure (possibly with reduced capability), maintaining some level of functionality.", exp_th: "Fail-soft อนุญาตให้ระบบดำเนินต่อไปหลังจากการล้มเหลว (อาจมีความสามารถลดลง) โดยรักษาระดับฟังก์ชันที่บางส่วน" },
+                { q: "What is Fail-Open behavior?", th: "Fail-Open behavior คืออะไร?", topic: "Secure Design", opts: ["Only used for printers", "When a system fails, it defaults to allowing access", "System closes permanently", "System encrypts everything"], ans: 1, opts_th: ["Only used for printers", "When a ระบบ fails, it defaults to allowing การเข้าถึง", "ระบบ closes permanently", "ระบบ encrypts everything"], exp: "Fail-open is generally insecure and means a system defaults to allowing access when it fails (opposite of fail-secure).", exp_th: "Fail-open โดยทั่วไปไม่ปลอดภัยและหมายความว่าระบบเริ่มต้นการอนุญาตการเข้าถึงเมื่อล้มเหลว (ตรงกันข้ามกับ fail-secure)" },
+                { q: "What does Zero Trust architecture assume?", th: "Zero Trust architecture สมมติว่าอะไร?", topic: "Zero Trust", opts: ["All users inside network are trusted", "No device or user is trusted by default; trust must be verified continuously", "Firewalls are no longer needed", "Passwords are not needed"], ans: 1, opts_th: ["All users inside network are trusted", "No device or user is trusted by default; trust must be verified continuously", "Firewalls are no longer needed", "Passwords are not needed"], exp: "Zero Trust assumes all users, devices, and networks are untrusted until verified. Every access request requires authentication/authorization regardless of location.", exp_th: "Zero Trust สมมติว่าผู้ใช้ อุปกรณ์ และเครือข่ายทั้งหมดไม่เชื่อถือจนกว่าจะได้รับการตรวจสอบ การร้องขอการเข้าถึงทุกครั้งต้องใช้การตรวจสอบสิทธิ์/การให้สิทธิ์" },
+                { q: "Which NIST publication defines Zero Trust architecture?", th: "สิ่งพิมพ์ NIST ใดที่กำหนด Zero Trust architecture?", topic: "Zero Trust", opts: ["NIST SP 800-53", "NIST SP 800-207", "NIST SP 800-171", "NIST SP 800-122"], ans: 1, opts_th: ["NIST SP 800-53", "NIST SP 800-207", "NIST SP 800-171", "NIST SP 800-122"], exp: "NIST SP 800-207 'Zero Trust Architecture' provides federal recommendations for implementing zero trust security models.", exp_th: "NIST SP 800-207 'Zero Trust Architecture' ให้คำแนะนำของรัฐบาลกลางในการนำแบบจำลองความปลอดภัย Zero Trust มาใช้ใจใจ" },
+                { q: "What is Privacy by Design?", th: "Privacy by Design คืออะไร?", topic: "Privacy by Design", opts: ["Adding privacy features after deployment", "Privacy is built into system design from the beginning", "Only for compliance", "Only for data centers"], ans: 1, opts_th: ["Adding privacy features after deployment", "Privacy is built into ระบบ design from the beginning", "Only for การปฏิบัติตาม", "Only for ข้อมูล centers"], exp: "Privacy by Design integrates privacy and data protection throughout the entire system development lifecycle, not as an afterthought.", exp_th: "Privacy by Design รวมความเป็นส่วนตัวและการป้องกันข้อมูลทั่วทั้งวงจรชีวิตการพัฒนาระบบ ไม่ใช่ความคิดหลัง" },
+                { q: "What is Separation of Duties (SoD)?", th: "Separation of Duties (SoD) คืออะไร?", topic: "Secure Design", opts: ["Dividing duties equally", "Requiring more than one person to complete critical tasks to prevent fraud", "One person doing everything", "Separating office spaces"], ans: 1, opts_th: ["Dividing duties equally", "Requiring more than one person to complete critical tasks to prevent fraud", "One person doing everything", "Separating office spaces"], exp: "SoD requires that no single individual can perform critical functions alone, reducing fraud and errors by requiring multiple authorizations.", exp_th: "SoD กำหนดให้ไม่มีบุคคลใดสามารถปฏิบัติหน้าที่ที่สำคัญได้คนเดียว ลดการฉ้อโกงและข้อผิดพลาดโดยต้องมีการอนุมัติหลายบุคคล" },
+                { q: "What is the KISS principle?", th: "หลักการ KISS คืออะไร?", topic: "Secure Design", opts: ["Creating complex systems", "Keep It Stupid Simple", "Only for small projects", "Keep It Secure and Simple"], ans: 1, opts_th: ["Creating complex ระบบ", "Keep It Stupid Simple", "Only for small projects", "Keep It Secure and Simple"], exp: "KISS (Keep It Stupid Simple) states that simpler solutions are often better. Overly complex systems are harder to secure and maintain.", exp_th: "KISS (Keep It Stupid Simple) ระบุว่าวิธีแก้ปัญหาที่ง่ายกว่านั้นมักจะดีกว่า ระบบที่ซับซ้อนเกินไปนั้นยากต่อการรักษาความปลอดภัยและบำรุงรักษา" },
+                { q: "What does DRY stand for in software development?", th: "DRY ในการพัฒนาซอฟต์แวร์ย่อมาจากอะไร?", topic: "Secure Design", opts: ["Data Replication and Yield", "Don't Repeat Yourself", "Deploy and Review Yearly", "Design Review and Yield"], ans: 1, opts_th: ["ข้อมูล Replication and Yield", "Don't Repeat Yourself", "Deploy and Review Yearly", "Design Review and Yield"], exp: "DRY (Don't Repeat Yourself) states that code and knowledge should not be duplicated; reuse code and centralize configuration.", exp_th: "DRY (Don't Repeat Yourself) ระบุว่าไม่ควรจำลองโค้ดและความรู้ ให้นำโค้ดและการกำหนดค่ากลับมาใช้ใหม่และจัดให้เป็นศูนย์กลาง" },
+                { q: "What is the YAGNI principle?", th: "หลักการ YAGNI คืออะไร?", topic: "Secure Design", opts: ["You Are Getting New Information", "You Aren't Gonna Need It", "Yet Another Generic Network Item", "Your Application Generates Notifications"], ans: 1, opts_th: ["You Are Getting New ข้อมูล", "You Aren't Gonna Need It", "Yet Another Generic Network Item", "Your Application Generates Notifications"], exp: "YAGNI (You Aren't Gonna Need It) advises against adding features that aren't currently needed, reducing complexity and security surface.", exp_th: "YAGNI (You Aren't Gonna Need It) แนะนำให้ไม่เพิ่มคุณสมบัติที่ไม่จำเป็นในปัจจุบัน ลดความซับซ้อนและพื้นผิวความปลอดภัย" },
+                { q: "What are Subjects in access control?", th: "Subjects ในการควบคุมการเข้าถึงคืออะไร?", topic: "Subjects/Objects", opts: ["The data being accessed", "Active entities (users, processes) that access resources", "Security controls", "Network nodes"], ans: 1, opts_th: ["The ข้อมูล being accessed", "Active entities (users, processes) that การเข้าถึง resources", "Security controls", "Network nodes"], exp: "Subjects are active entities (users, programs, processes) that attempt to access resources. Objects are the resources being accessed.", exp_th: "Subjects คือเอนทิตี้ที่ใช้งานอยู่ (ผู้ใช้ โปรแกรม กระบวนการ) ที่พยายามเข้าถึงทรัพยากร Objects คือทรัพยากรที่ถูกเข้าถึง" },
+                { q: "What are Objects in access control?", th: "Objects ในการควบคุมการเข้าถึงคืออะไร?", topic: "Subjects/Objects", opts: ["The users accessing resources", "Resources (files, databases, systems) being protected", "Security policies", "Network interfaces"], ans: 1, opts_th: ["The users accessing resources", "Resources (files, databases, ระบบ) being protected", "Security policies", "Network interfaces"], exp: "Objects are passive resources (files, databases, printers, networks) that are accessed and protected by access control mechanisms.", exp_th: "Objects คือทรัพยากรที่ไม่ใช้งานอยู่ (ไฟล์ ฐานข้อมูล เครื่องพิมพ์ เครือข่าย) ที่ได้รับการเข้าถึงและป้องกันโดยกลไกการควบคุมการเข้าถึง" },
+                { q: "What is an Open System?", th: "Open System คืออะไร?", topic: "Closed/Open Systems", opts: ["A system with no security", "A system designed using agreed-upon industry standards", "A system accessible to everyone", "A system without controls"], ans: 1, opts_th: ["A ระบบ with no security", "A ระบบ designed using agreed-upon industry standards", "A ระบบ accessible to everyone", "A ระบบ without controls"], exp: "An Open System uses published, standardized interfaces and protocols (like TCP/IP, HTTP) allowing interoperability with other systems.", exp_th: "Open System ใช้อินเทอร์เฟสและโปรโตคอลมาตรฐานที่เผยแพร่ (เช่น TCP/IP HTTP) ซึ่งอนุญาตการทำงานร่วมกันกับระบบอื่น" },
+                { q: "What is a Closed System?", th: "Closed System คืออะไร?", topic: "Closed/Open Systems", opts: ["A system that doesn't work", "A proprietary system with limited interoperability", "A system with no access", "A secure system"], ans: 1, opts_th: ["A ระบบ that doesn't work", "A proprietary ระบบ with limited interoperability", "A ระบบ with no การเข้าถึง", "A secure ระบบ"], exp: "A Closed (proprietary) System uses proprietary protocols and interfaces, limiting interoperability but potentially offering better security through obscurity.", exp_th: "Closed (proprietary) System ใช้โปรโตคอลและอินเทอร์เฟสที่เป็นกรรมสิทธิ์ ซึ่งจำกัดการทำงานร่วมกัน แต่อาจให้ความปลอดภัยที่ดีกว่าผ่านความคลุมเครือ" },
+                { q: "What is Transitive Trust?", th: "Transitive Trust คืออะไร?", topic: "Transitive Trust", opts: ["Trust that is permanent", "If A trusts B and B trusts C, then A inherits trust of C", "Trust in security certificates only", "Trust between identical systems"], ans: 1, opts_th: ["Trust that is permanent", "If A trusts B and B trusts C, then A inherits trust of C", "Trust in security certificates only", "Trust between identical ระบบ"], exp: "Transitive Trust means if domain A trusts domain B, and B trusts C, then A inherits trust of C. Can create security risks if not managed.", exp_th: "Transitive Trust หมายความว่าถ้าโดเมน A เชื่อถือ B และ B เชื่อถือ C แล้ว A จะสืบทอดการเชื่อถือของ C สามารถสร้างความเสี่ยงด้านความปลอดภัยหากไม่ได้รับการจัดการ" },
+                { q: "What does the Bell-LaPadula model primarily protect?", th: "โมเดล Bell-LaPadula ป้องกันอะไรเป็นหลัก?", topic: "Security Models", opts: ["Availability", "Integrity", "Confidentiality", "Authentication"], ans: 2, opts_th: ["ความพร้อมใช้งาน", "ความถูกต้อง", "ความลับ", "การพิสูจน์ตัวตน"], exp: "Bell-LaPadula focuses on confidentiality using the 'no read up, no write down' rule to prevent unauthorized information disclosure in multi-level systems.", exp_th: "Bell-LaPadula มุ่งเน้นไปที่ความลับโดยใช้กฎ 'no read up, no write down' เพื่อป้องกันการเปิดเผยข้อมูลโดยไม่ได้รับอนุญาต" },
+                { q: "What does the Biba model primarily protect?", th: "โมเดล Biba ป้องกันอะไรเป็นหลัก?", topic: "Security Models", opts: ["Confidentiality", "Integrity", "Availability", "Authentication"], ans: 1, opts_th: ["ความลับ", "ความถูกต้อง", "ความพร้อมใช้งาน", "การพิสูจน์ตัวตน"], exp: "Biba focuses on integrity using 'no read down, no write up' rules to prevent untrusted data from modifying more trustworthy information.", exp_th: "Biba มุ่งเน้นไปที่ความถูกต้องโดยใช้กฎ 'no read down, no write up' เพื่อป้องกันข้อมูลที่ไม่เชื่อถือจากการแก้ไขข้อมูลที่เชื่อถือได้มากขึ้น" },
+                { q: "How does the Clark-Wilson model ensure integrity?", th: "โมเดล Clark-Wilson รับประกันความถูกต้องอย่างไร?", topic: "Security Models", opts: ["Using encryption", "Using well-formed transactions and separation of duties", "Using digital signatures only", "Using access control lists"], ans: 1, opts_th: ["Using การเข้ารหัส", "Using well-formed transactions and separation of duties", "Using ลายเซ็นดิจิทัล only", "Using รายการควบคุมการเข้าถึง"], exp: "Clark-Wilson uses well-formed transactions (certified programs) and SoD to ensure data integrity by controlling how data is modified.", exp_th: "Clark-Wilson ใช้ธุรกรรมที่เป็นรูปแบบที่ดี (โปรแกรมที่มีใบรับรอง) และ SoD เพื่อรับประกันความถูกต้องของข้อมูลโดยการควบคุมวิธีการแก้ไขข้อมูล" },
+                { q: "What is a Subject in the context of security models?", th: "Subject ในบริบทของโมเดลความปลอดภัยคืออะไร?", topic: "Subjects/Objects", opts: ["A topic of study", "An active entity that can access objects", "A system administrator", "A security policy"], ans: 1, opts_th: ["A topic of study", "An active entity that can การเข้าถึง objects", "A ระบบ administrator", "A นโยบายความปลอดภัย"], exp: "In security models, a Subject is any active entity (user, process, application) that can request and access Objects (resources).", exp_th: "ในโมเดลความปลอดภัย Subject คือเอนทิตี้ที่ใช้งานอยู่ (ผู้ใช้ กระบวนการ แอปพลิเคชัน) ที่สามารถร้องขอและเข้าถึง Objects (ทรัพยากร)" },
+                { q: "What is encryption in transit?", th: "Encryption in transit คืออะไร?", topic: "Cryptographic controls", opts: ["Encrypting data at rest in storage", "Protecting data while being transmitted over networks", "Encrypting data in memory", "Only for wireless networks"], ans: 1, opts_th: ["Encrypting ข้อมูล at rest in storage", "Protecting ข้อมูล while being transmitted over networks", "Encrypting ข้อมูล in memory", "Only for wireless networks"], exp: "Encryption in transit protects data while it's being transmitted, using protocols like TLS/SSL to prevent interception and eavesdropping.", exp_th: "Encryption in transit ป้องกันข้อมูลขณะที่ส่งข้อมูลผ่านเครือข่าย โดยใช้โปรโตคอลเช่น TLS/SSL เพื่อป้องกันการสกัดกั้นและการดักฟัง" },
+                { q: "What is encryption at rest?", th: "Encryption at rest คืออะไร?", topic: "Cryptographic controls", opts: ["Protecting data during transmission", "Protecting data while stored on disks or databases", "Protecting data in memory only", "Only for backups"], ans: 1, opts_th: ["Protecting ข้อมูล during transmission", "Protecting ข้อมูล while stored on disks or databases", "Protecting ข้อมูล in memory only", "Only for backups"], exp: "Encryption at rest protects data stored on persistent media (disks, drives, databases) using encryption keys managed by the organization.", exp_th: "Encryption at rest ป้องกันข้อมูลที่เก็บไว้บนสื่อถาวร (ดิสก์ ไดรฟ์ ฐานข้อมูล) โดยใช้กุญแจการเข้ารหัสที่จัดการโดยองค์กร" },
+                { q: "What are the key tenets of Shared Responsibility Model?", th: "หลักการสำคัญของ Shared Responsibility Model คืออะไร?", topic: "Shared Responsibility", opts: ["One party has all responsibility", "Both cloud provider and customer share security responsibilities", "Only cloud provider is responsible", "Only customer is responsible"], ans: 1, opts_th: ["One party has all responsibility", "Both cloud provider and customer share security responsibilities", "Only cloud provider is responsible", "Only customer is responsible"], exp: "Shared Responsibility means provider secures infrastructure (physical, network, OS) while customer secures applications, data, and access controls.", exp_th: "Shared Responsibility หมายความว่าผู้ให้บริการรักษาความปลอดภัยโครงสร้างพื้นฐาน (ทางกายภาพ เครือข่าย OS) ในขณะที่ลูกค้าปกป้องแอปพลิเคชัน ข้อมูล และการควบคุมการเข้าถึง" },
+                { q: "What is physical security's primary purpose?", th: "วัตถุประสงค์หลักของความปลอดภัยทางกายภาพคืออะไร?", topic: "Physical Security", opts: ["Protecting software only", "Protecting physical assets and preventing unauthorized physical access", "Only for data centers", "Only for offices"], ans: 1, opts_th: ["Protecting software only", "Protecting physical สินทรัพย์ and preventing unauthorized physical การเข้าถึง", "Only for ข้อมูล centers", "Only for offices"], exp: "Physical security protects facilities, equipment, and infrastructure from unauthorized access, theft, sabotage, and environmental hazards.", exp_th: "Physical security ป้องกันสิ่งอำนวยความสะดวก อุปกรณ์ และโครงสร้างพื้นฐานจากการเข้าถึงโดยไม่ได้รับอนุญาต การลักขโมย การ sabotage และอันตรายจากสิ่งแวดล้อม" },
+                { q: "What controls are part of physical security?", th: "การควบคุมใดที่เป็นส่วนหนึ่งของความปลอดภัยทางกายภาพ?", topic: "Physical Security", opts: ["Only firewalls", "Badges, locks, CCTV, guards, environmental controls", "Only access lists", "Only encryption"], ans: 1, opts_th: ["Only firewalls", "Badges, locks, CCTV, guards, environmental controls", "Only การเข้าถึง lists", "Only การเข้ารหัส"], exp: "Physical security includes access controls (badges, locks), surveillance (CCTV), guards, environmental controls (temperature, humidity), and visitor management.", exp_th: "Physical security รวมถึงการควบคุมการเข้าถึง (ป้ายระบุตัว ล็อค) การตรวจสอบ (CCTV) ยาม การควบคุมสภาพแวดล้อม (อุณหภูมิ ความชื้น) และการจัดการผู้มาเยี่ยม" },
+                { q: "What is the difference between asymmetric and symmetric encryption?", th: "ความแตกต่างระหว่าง asymmetric และ symmetric encryption คืออะไร?", topic: "Cryptographic controls", opts: ["Asymmetric is faster", "Symmetric uses one key; asymmetric uses public/private key pairs", "They are the same", "Asymmetric is weaker"], ans: 1, opts_th: ["อสมมาตร is faster", "สมมาตร uses one key; อสมมาตร uses public/private key pairs", "They are the same", "อสมมาตร is weaker"], exp: "Symmetric: one shared secret key (fast, key distribution problem). Asymmetric: public key for encryption, private key for decryption (solves key distribution).", exp_th: "Symmetric: กุญแจลับที่ใช้ร่วมกันหนึ่งตัว (เร็ว ปัญหาการกระจายกุญแจ) Asymmetric: กุญแจสาธารณะสำหรับการเข้ารหัส กุญแจส่วนตัวสำหรับการถอดรหัส (แก้ไขปัญหาการกระจายกุญแจ)" },
+                { q: "What is a security boundary?", th: "Security boundary คืออะไร?", topic: "Closed/Open Systems", opts: ["A physical fence around a data center", "A defined perimeter that defines what is protected and how", "The edge of a network", "Only for servers"], ans: 1, opts_th: ["A physical fence around a ข้อมูล center", "A defined perimeter that defines what is protected and how", "The edge of a network", "Only for servers"], exp: "A security boundary defines what is included in the system's security scope and what protections must be applied to systems within it.", exp_th: "Security boundary กำหนดสิ่งที่รวมอยู่ในขอบเขตความปลอดภัยของระบบและการป้องกันใดที่ต้องนำไปใช้กับระบบภายในนั้น" },
+                { q: "What is secure development lifecycle (SDLC)?", th: "Secure development lifecycle (SDLC) คืออะไร?", topic: "Secure Design", opts: ["Only testing phase", "A process integrating security into every stage of software development", "Only for IT departments", "Only code review"], ans: 1, opts_th: ["Only testing phase", "A process integrating security into every stage of software development", "Only for IT departments", "Only code review"], exp: "Secure SDLC integrates security requirements, secure coding, testing, and deployment practices into all phases of software development.", exp_th: "Secure SDLC รวมข้อกำหนดความปลอดภัย การเข้ารหัสที่ปลอดภัย การทดสอบ และแนวทางการปรับใช้เข้าไปในทุกระยะของการพัฒนาซอฟต์แวร์" },
+                { q: "What is the principle of secure defaults?", th: "หลักการ secure defaults คืออะไร?", topic: "Secure Design", opts: ["Users should configure security themselves", "Systems should be secure by default without user configuration", "Default settings are always weak", "Security is optional"], ans: 1, opts_th: ["Users should configure security themselves", "ระบบ should be secure by default without user configuration", "Default settings are always weak", "Security is optional"], exp: "Secure defaults mean systems are configured with the highest security settings enabled by default, and users must actively disable them if needed.", exp_th: "Secure defaults หมายความว่าระบบได้รับการกำหนดค่าด้วยการตั้งค่าความปลอดภัยสูงสุดที่เปิดใช้งานโดยค่าเริ่มต้น และผู้ใช้ต้องปิดการใช้งานแบบแอกทีฟหากจำเป็น" },
+                { q: "What is input validation in secure development?", th: "Input validation ในการพัฒนาที่ปลอดภัยคืออะไร?", topic: "Secure Design", opts: ["Checking user credentials only", "Verifying that input data meets expected format and constraints before processing", "Only for passwords", "Only for databases"], ans: 1, opts_th: ["Checking user credentials only", "Verifying that input ข้อมูล meets expected format and constraints before processing", "Only for passwords", "Only for databases"], exp: "Input validation checks that data from users meets expected criteria (type, length, format) before processing, preventing injection attacks and malformed data.", exp_th: "Input validation ตรวจสอบว่าข้อมูลจากผู้ใช้เป็นไปตามเกณฑ์ที่คาดไว้ (ประเภท ความยาว รูปแบบ) ก่อนการประมวลผล เพื่อป้องกันการโจมตี injection" },
+                { q: "What is the purpose of security testing?", th: "วัตถุประสงค์ของการทดสอบความปลอดภัยคืออะไร?", topic: "Secure Design", opts: ["Only to find bugs", "To identify and validate security vulnerabilities and controls effectiveness", "Only for compliance", "Only after deployment"], ans: 1, opts_th: ["Only to find bugs", "To identify and validate security ช่องโหว่ and controls effectiveness", "Only for การปฏิบัติตาม", "Only after deployment"], exp: "Security testing includes vulnerability assessment, penetration testing, and code review to identify weaknesses and verify controls work as intended.", exp_th: "Security testing รวมถึงการประเมินความเสี่ยง การทดสอบการแทรกซึม และการตรวจสอบโค้ดเพื่อระบุจุดอ่อนและตรวจสอบว่าการควบคุมทำงานตามที่ตั้งใจไว้" },
+                { q: "What is code review in secure development?", th: "Code review ในการพัฒนาที่ปลอดภัยคืออะไร?", topic: "Secure Design", opts: ["Only spell checking code", "Examination of source code to identify security flaws and weaknesses", "Only for documentation", "Only for visual inspection"], ans: 1, opts_th: ["Only spell checking code", "Examination of source code to identify security flaws and weaknesses", "Only for documentation", "Only for visual inspection"], exp: "Code review involves having other developers examine code for security issues, logic errors, compliance with standards, and adherence to secure coding practices.", exp_th: "Code review เกี่ยวข้องกับการให้ผู้พัฒนารายอื่นตรวจสอบโค้ดเพื่อค้นหาปัญหาความปลอดภัย ข้อผิดพลาดของตรรมชาติ ความสอดคล้องกับมาตรฐาน" },
+                { q: "What is the principle of defense in depth in architecture?", th: "หลักการ defense in depth ในสถาปัตยกรรมคืออะไร?", topic: "Defense in Depth", opts: ["Using only one firewall", "Multiple overlapping security layers so failure in one doesn't compromise all", "Using the strongest control possible", "Having a single strong perimeter"], ans: 1, opts_th: ["Using only one ไฟร์วอลล์", "Multiple overlapping security layers so failure in one doesn't compromise all", "Using the strongest control possible", "Having a single strong perimeter"], exp: "Defense in depth uses multiple security layers/controls at different system levels. If one layer is compromised, others still provide protection.", exp_th: "Defense in depth ใช้หลายชั้นและการควบคุมความปลอดภัยในระดับระบบที่แตกต่างกัน หากชั้นหนึ่งถูกบุกรุก ชั้นอื่น ๆ ก็ยังคงให้การป้องกัน" },
+                { q: "What is a reference monitor in security architecture?", th: "Reference monitor ในสถาปัตยกรรมความปลอดภัยคืออะไร?", topic: "Security Models", opts: ["A person who monitors security", "An abstraction that mediates all access to resources and enforces security policy", "A network monitoring device", "A security audit tool"], ans: 1, opts_th: ["A person who monitors security", "An abstraction that mediates all การเข้าถึง to resources and enforces นโยบายความปลอดภัย", "A network monitoring device", "A security audit tool"], exp: "A reference monitor is an abstract, tamper-proof mechanism that enforces all access control decisions, ensuring no unauthorized access can occur.", exp_th: "Reference monitor เป็นกลไกที่เป็นนามธรรมและป้องกันการดัดแปลงที่บังคับใช้การตัดสินใจควบคุมการเข้าถึงทั้งหมด" },
+                { q: "What is a trust boundary?", th: "Trust boundary คืออะไร?", topic: "Transitive Trust", opts: ["A geographic boundary", "A logical boundary between trusted and untrusted domains", "A firewall rule", "A network cable"], ans: 1, opts_th: ["A geographic boundary", "A logical boundary between trusted and untrusted domains", "A ไฟร์วอลล์ rule", "A network cable"], exp: "A trust boundary marks the transition between trust levels in a system. Different security policies apply on different sides of the boundary.", exp_th: "Trust boundary ทำเครื่องหมายการเปลี่ยนแปลงระหว่างระดับการเชื่อถือในระบบ นโยบายความปลอดภัยต่างกันนี้ใช้กับด้านต่าง ๆ ของขอบเขต" },
+                { q: "The Bell-LaPadula model enforces which security property with 'No Read Up'?", th: "Bell-LaPadula model บังคับใช้คุณสมบัติความปลอดภัยใดด้วย 'No Read Up'?", topic: "Security Models", opts: ["Integrity", "Availability", "Confidentiality", "Non-repudiation"], ans: 2, opts_th: ["ความถูกต้อง", "ความพร้อมใช้งาน", "ความลับ", "Non-repudiation"], exp: "Bell-LaPadula's 'Simple Security Property (No Read Up)' ensures confidentiality by preventing subjects from reading objects at higher classification levels.", exp_th: "กฎ 'No Read Up' ของ Bell-LaPadula รับรองความลับโดยป้องกันไม่ให้ subject อ่านข้อมูลที่มีระดับการจำแนกสูงกว่า" },
+                { q: "The Biba model uses 'No Write Up' to protect:", th: "Biba model ใช้ 'No Write Up' เพื่อปกป้อง:", topic: "Security Models", opts: ["Confidentiality", "Integrity", "Availability", "Authentication"], ans: 1, opts_th: ["ความลับ", "ความถูกต้อง", "ความพร้อมใช้งาน", "การพิสูจน์ตัวตน"], exp: "Biba's 'No Write Up' (Simple Integrity Axiom) prevents subjects from writing to objects at higher integrity levels, protecting data integrity.", exp_th: "กฎ 'No Write Up' ของ Biba ป้องกันไม่ให้ subject เขียนข้อมูลไปยังระดับ integrity ที่สูงกว่า เพื่อปกป้องความถูกต้องของข้อมูล" },
+                { q: "What is the Clark-Wilson model PRIMARILY designed to protect?", th: "Clark-Wilson model ออกแบบมาเพื่อปกป้องสิ่งใดเป็นหลัก?", topic: "Security Models", opts: ["Confidentiality through MAC", "Data integrity through well-formed transactions", "Availability through redundancy", "Authentication through biometrics"], ans: 1, opts_th: ["ความลับ through MAC", "ข้อมูล ความถูกต้อง through well-formed transactions", "ความพร้อมใช้งาน through ความซ้ำซ้อน", "การพิสูจน์ตัวตน through biometrics"], exp: "Clark-Wilson focuses on data integrity using well-formed transactions and separation of duties, commonly used in commercial environments.", exp_th: "Clark-Wilson มุ่งเน้นความถูกต้องของข้อมูลโดยใช้ธุรกรรมที่มีรูปแบบถูกต้องและการแบ่งแยกหน้าที่ ใช้กันทั่วไปในสภาพแวดล้อมเชิงพาณิชย์" },
+                { q: "What is symmetric encryption's main advantage over asymmetric?", th: "ข้อได้เปรียบหลักของการเข้ารหัสแบบ Symmetric เหนือ Asymmetric คืออะไร?", topic: "Cryptography", opts: ["Better key distribution", "Faster processing speed", "Digital signature support", "Non-repudiation"], ans: 1, opts_th: ["Better key distribution", "Faster processing speed", "Digital signature support", "Non-repudiation"], exp: "Symmetric encryption is significantly faster than asymmetric encryption, making it suitable for encrypting large amounts of data.", exp_th: "การเข้ารหัสแบบ Symmetric เร็วกว่า Asymmetric อย่างมีนัยสำคัญ ทำให้เหมาะสมสำหรับเข้ารหัสข้อมูลจำนวนมาก" },
+                { q: "Which algorithm is an example of asymmetric encryption?", th: "อัลกอริทึมใดเป็นตัวอย่างของการเข้ารหัสแบบ Asymmetric?", topic: "Cryptography", opts: ["AES", "DES", "RSA", "3DES"], ans: 2, opts_th: ["AES", "DES", "RSA", "3DES"], exp: "RSA (Rivest-Shamir-Adleman) is an asymmetric encryption algorithm that uses a public/private key pair.", exp_th: "RSA เป็นอัลกอริทึมการเข้ารหัสแบบ Asymmetric ที่ใช้คู่กุญแจสาธารณะ/ส่วนตัว" },
+                { q: "What is a Hash function's key property?", th: "คุณสมบัติสำคัญของ Hash function คืออะไร?", topic: "Cryptography", opts: ["It is reversible", "It produces a fixed-size output regardless of input size", "It requires a key", "It provides confidentiality"], ans: 1, opts_th: ["It is reversible", "It produces a fixed-size output regardless of input size", "It requires a key", "It provides ความลับ"], exp: "A hash function produces a fixed-size output (digest) for any input size, and is a one-way function - it cannot be reversed.", exp_th: "Hash function ผลิต output ขนาดคงที่สำหรับ input ทุกขนาด และเป็นฟังก์ชันทางเดียว - ไม่สามารถย้อนกลับได้" },
+                { q: "What is the purpose of a Digital Certificate?", th: "จุดประสงค์ของ Digital Certificate คืออะไร?", topic: "Cryptography", opts: ["To encrypt files", "To bind a public key to an identity, verified by a CA", "To generate random numbers", "To store private keys"], ans: 1, opts_th: ["To เข้ารหัส files", "To bind a public key to an ตัวตน, verified by a CA", "To generate random numbers", "To store private keys"], exp: "A Digital Certificate binds a public key to an identity (person or organization), with the binding verified and signed by a trusted Certificate Authority (CA).", exp_th: "Digital Certificate เชื่อมโยงกุญแจสาธารณะกับตัวตน (บุคคลหรือองค์กร) โดยมี Certificate Authority (CA) ที่น่าเชื่อถือรับรอง" },
+                { q: "What does PKI stand for?", th: "PKI ย่อมาจากอะไร?", topic: "Cryptography", opts: ["Private Key Infrastructure", "Public Key Infrastructure", "Protocol Key Integration", "Primary Key Identification"], ans: 1, opts_th: ["Private Key โครงสร้างพื้นฐาน", "Public Key โครงสร้างพื้นฐาน", "โปรโตคอล Key Integration", "Primary Key การระบุตัวตน"], exp: "PKI (Public Key Infrastructure) is a set of roles, policies, hardware, software and procedures to create, manage, distribute, use, store and revoke digital certificates.", exp_th: "PKI (Public Key Infrastructure) คือชุดของบทบาท นโยบาย ฮาร์ดแวร์ ซอฟต์แวร์และขั้นตอนในการสร้าง จัดการ และเพิกถอน digital certificates" },
+                { q: "What is the purpose of a Mantrap (Air Lock) in physical security?", th: "จุดประสงค์ของ Mantrap (Air Lock) ในความปลอดภัยทางกายภาพคืออะไร?", topic: "Physical Security", opts: ["Fire suppression", "Preventing tailgating/piggybacking into secure areas", "HVAC control", "Power backup"], ans: 1, opts_th: ["Fire suppression", "Preventing tailgating/piggybacking into secure areas", "HVAC control", "Power backup"], exp: "A Mantrap is a physical security control with two sets of doors that prevents tailgating, allowing only one person to enter at a time.", exp_th: "Mantrap คือการควบคุมความปลอดภัยทางกายภาพที่มีประตูสองชุด ป้องกันการตามเข้า (tailgating) โดยให้คนเข้าได้ทีละคน" },
+                { q: "What is CPTED in physical security?", th: "CPTED ในความปลอดภัยทางกายภาพคืออะไร?", topic: "Physical Security", opts: ["Computer Protection Technology and Design", "Crime Prevention Through Environmental Design", "Cyber Physical Threat Detection", "Controlled Physical Entry and Detection"], ans: 1, opts_th: ["Computer Protection Technology and Design", "Crime Prevention Through Environmental Design", "Cyber Physical ภัยคุกคาม Detection", "Controlled Physical Entry and Detection"], exp: "CPTED (Crime Prevention Through Environmental Design) uses physical design elements to deter crime and improve security.", exp_th: "CPTED ใช้องค์ประกอบการออกแบบทางกายภาพเพื่อยับยั้งอาชญากรรมและปรับปรุงความปลอดภัย" },
+                { q: "What type of fire suppression system is SAFEST for people in the room?", th: "ระบบดับเพลิงประเภทใดที่ปลอดภัยที่สุดสำหรับคนในห้อง?", topic: "Physical Security", opts: ["Halon gas", "CO2 system", "Water sprinkler", "FM-200 (HFC-227ea)"], ans: 3, opts_th: ["Halon gas", "CO2 ระบบ", "Water sprinkler", "FM-200 (HFC-227ea)"], exp: "FM-200 (HFC-227ea) is a clean agent fire suppression system that is safe for people and electronics, unlike CO2 or Halon which can be harmful.", exp_th: "FM-200 เป็นระบบดับเพลิงแบบ clean agent ที่ปลอดภัยสำหรับคนและอุปกรณ์อิเล็กทรอนิกส์" },
+                { q: "What is the Trusted Platform Module (TPM)?", th: "Trusted Platform Module (TPM) คืออะไร?", topic: "Security Models", opts: ["A software firewall", "A dedicated hardware chip for cryptographic operations and key storage", "A network security protocol", "A type of access control list"], ans: 1, opts_th: ["A software ไฟร์วอลล์", "A dedicated hardware chip for cryptographic operations and key storage", "A network security โปรโตคอล", "A type of การควบคุมการเข้าถึง list"], exp: "TPM is a dedicated microchip on hardware that stores cryptographic keys, certificates, and provides hardware-based security functions.", exp_th: "TPM เป็นไมโครชิปเฉพาะบนฮาร์ดแวร์ที่จัดเก็บกุญแจการเข้ารหัส ใบรับรอง และให้ฟังก์ชันความปลอดภัยบนฮาร์ดแวร์" },
+                { q: "In the Ring Protection model, which ring has the MOST privileges?", th: "ในโมเดล Ring Protection วงแหวนใดมีสิทธิ์มากที่สุด?", topic: "Security Models", opts: ["Ring 3 (User Applications)", "Ring 1 (Device Drivers)", "Ring 0 (Kernel/OS)", "Ring 2 (Services)"], ans: 2, opts_th: ["Ring 3 (User Applications)", "Ring 1 (Device Drivers)", "Ring 0 (Kernel/OS)", "Ring 2 (Services)"], exp: "Ring 0 (the kernel) has the highest privileges in the Ring Protection model, while Ring 3 (user applications) has the least.", exp_th: "Ring 0 (kernel) มีสิทธิ์สูงสุดในโมเดล Ring Protection ในขณะที่ Ring 3 (applications) มีสิทธิ์น้อยที่สุด" },
+                { q: "What is 'Privacy by Design' principle?", th: "หลักการ 'Privacy by Design' คืออะไร?", topic: "Secure Design Principles", opts: ["Adding privacy features after development", "Integrating privacy protections into systems from the start", "Making all data public by default", "Using only encrypted databases"], ans: 1, opts_th: ["Adding privacy features after development", "Integrating privacy protections into ระบบ from the start", "Making all ข้อมูล public by default", "Using only เข้ารหัส databases"], exp: "Privacy by Design means embedding privacy protections directly into systems and processes from the beginning, rather than as an afterthought.", exp_th: "Privacy by Design หมายถึงการฝังการปกป้องความเป็นส่วนตัวเข้าไปในระบบและกระบวนการตั้งแต่ต้น ไม่ใช่เพิ่มเติมภายหลัง" },
+                { q: "Shared Responsibility in cloud security means:", th: "Shared Responsibility ในความปลอดภัยคลาวด์หมายความว่า:", topic: "Secure Design Principles", opts: ["Only the cloud provider is responsible for security", "Only the customer is responsible for security", "Security responsibilities are divided between cloud provider and customer", "Security is entirely managed by a third party"], ans: 2, opts_th: ["Only the cloud provider is responsible for security", "Only the customer is responsible for security", "Security responsibilities are divided between cloud provider and customer", "Security is entirely managed by a third party"], exp: "In cloud computing, the Shared Responsibility model divides security duties: providers manage infrastructure security, customers manage data and application security.", exp_th: "ในคลาวด์คอมพิวติง โมเดล Shared Responsibility แบ่งหน้าที่ด้านความปลอดภัย: ผู้ให้บริการดูแล infrastructure ลูกค้าดูแลข้อมูลและแอปพลิเคชัน" }
+
+            ]
+        };
+
+        // Game State
+        let currentChapter = 1;
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = [];
+        let timeRemaining = 90;
+        let timerInterval = null;
+        let topicScores = {};
+
+        // Initialize
+        function getUrlChapter() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('chapter');
+        }
+
+        function startQuiz(chapter) {
+            currentChapter = chapter;
+            currentQuestion = 0;
+            score = 0;
+            answered = [];
+            topicScores = {};
+
+            if (chapter === 'all') {
+                currentChapter = 'all';
+            }
+
+            showScreen('quizScreen');
+            loadQuestion();
+        }
+
+        function getQuestions() {
+            if (currentChapter === 'all') {
+                return [...quizData[1], ...quizData[2], ...quizData[3]];
+            }
+            return quizData[currentChapter];
+        }
+
+        function loadQuestion() {
+            const questions = getQuestions();
+            const q = questions[currentQuestion];
+
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('currentChapter').textContent = currentChapter === 'all' ? 'ALL' : currentChapter;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = questions.length;
+
+            document.getElementById('questionText').textContent = q.q;
+            document.getElementById('questionThai').textContent = q.th;
+            document.getElementById('topicTag').textContent = '📌 ' + q.topic;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.opts.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.id = `option-${idx}`;
+                
+                // Create text container for dual languages
+                const textContainer = document.createElement('div');
+                textContainer.className = 'option-text';
+                
+                // English text with letter
+                const enDiv = document.createElement('div');
+                enDiv.className = 'option-en';
+                enDiv.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                textContainer.appendChild(enDiv);
+                
+                // Thai text
+                if (q.opts_th && q.opts_th[idx]) {
+                    const thDiv = document.createElement('div');
+                    thDiv.className = 'option-th';
+                    thDiv.textContent = q.opts_th[idx];
+                    textContainer.appendChild(thDiv);
+                }
+                
+                btn.appendChild(textContainer);
+                btn.onclick = () => selectOption(idx);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'Finish' : 'Next →';
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+
+            updateProgress();
+            startTimer();
+
+            // Initialize topic scores
+            if (!topicScores[q.topic]) {
+                topicScores[q.topic] = { correct: 0, total: 0 };
+            }
+            topicScores[q.topic].total++;
+        }
+
+        function selectOption(idx) {
+            if (answered[currentQuestion] !== undefined) return;
+
+            const questions = getQuestions();
+            const q = questions[currentQuestion];
+            answered[currentQuestion] = idx;
+
+            const correct = idx === q.ans;
+            if (correct) score++;
+
+            // Update topic score
+            topicScores[q.topic].correct++;
+
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.ans) opt.classList.add('correct');
+                if (i === idx && !correct) opt.classList.add('incorrect');
+            });
+
+            const feedback = document.getElementById('feedback');
+            document.getElementById('feedbackText').innerHTML = correct ? '✓ Correct!' : '✗ Incorrect';
+            document.getElementById('explanation').textContent = q.exp;
+            document.getElementById('explanationThai').textContent = '📝 ' + q.exp_th;
+            feedback.className = `feedback show ${correct ? 'correct' : 'incorrect'}`;
+
+            document.getElementById('currentScore').textContent = score;
+            clearTimeout(timerInterval);
+        }
+
+        function nextQuestion() {
+            const questions = getQuestions();
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeRemaining = 90;
+            updateTimer();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimer();
+                if (timeRemaining === 0) {
+                    clearInterval(timerInterval);
+                    if (answered[currentQuestion] === undefined) {
+                        answered[currentQuestion] = -1;
+                        nextQuestion();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const timer = document.getElementById('timer');
+            timer.textContent = timeRemaining + 's';
+            if (timeRemaining <= 10) {
+                timer.classList.add('warning');
+            } else {
+                timer.classList.remove('warning');
+            }
+        }
+
+        function updateProgress() {
+            const questions = getQuestions();
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            const questions = getQuestions();
+            const percentage = Math.round((score / questions.length) * 100);
+
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+
+            let message = '';
+            if (percentage >= 90) message = '🌟 Outstanding! You\'ve mastered this material!';
+            else if (percentage >= 80) message = '🎯 Excellent! Strong understanding demonstrated.';
+            else if (percentage >= 70) message = '👍 Good! Keep studying to improve further.';
+            else if (percentage >= 60) message = '📚 Fair. Review the weak areas below.';
+            else message = '💪 Keep practicing! Focus on weak topics.';
+
+            document.getElementById('resultsMessage').innerHTML = message + '<br><span style="font-size: 0.9em; opacity: 0.8;">Score: ' + percentage + '%</span>';
+
+            // Weakness analysis
+            const weaknessesHTML = Object.keys(topicScores)
+                .map(topic => {
+                    const { correct, total } = topicScores[topic];
+                    const topicPercentage = Math.round((correct / total) * 100);
+                    return `
+                        <div class="weakness-item">
+                            <span class="weakness-name">${topic}</span>
+                            <span class="weakness-score">${correct}/${total} (${topicPercentage}%)</span>
+                        </div>
+                    `;
+                })
+                .sort((a, b) => b.split('(')[1].split('%')[0] - a.split('(')[1].split('%')[0])
+                .join('');
+
+            document.getElementById('weaknessesContainer').innerHTML = weaknessesHTML;
+            showScreen('resultsScreen');
+        }
+
+        function shareQuiz() {
+            const chapter = currentChapter === 'all' ? 'all' : currentChapter;
+            const url = `${window.location.origin}${window.location.pathname}?chapter=${chapter}`;
+            navigator.clipboard.writeText(url).then(() => {
+                const notif = document.getElementById('shareNotification');
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 3000);
+            });
+        }
+
+        function showChapterScreen() {
+            showScreen('chapterScreen');
+            clearInterval(timerInterval);
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Check for URL chapter parameter
+        window.addEventListener('load', () => {
+            const urlChapter = getUrlChapter();
+            if (urlChapter) {
+                startQuiz(urlChapter === 'all' ? 'all' : parseInt(urlChapter));
+            }
+        });
+    </script>
+</body>
+</html>
